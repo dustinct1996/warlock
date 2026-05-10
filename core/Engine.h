@@ -19,6 +19,5 @@ private:
     AssetManager assets;
     bool developerMode = false;
     bool running = true;
-    Dimensions camera;
     std::vector<RenderItem> renderItemsBuffer;
 };

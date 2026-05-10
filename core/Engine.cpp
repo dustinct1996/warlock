@@ -22,7 +22,7 @@ void Engine::init(InitConfig& config) {
 	assets.loadGlobalTextures(config.assetsLocation);
 
 	// init camera
-	SDL_GetWindowSize(window, &camera.w, &camera.h);
+	// SDL_GetWindowSize(window, &camera.w, &camera.h);
 }
 
 void Engine::createWindow() {
@@ -46,7 +46,7 @@ void Engine::createWindow() {
 }
 
 void Engine::run(Game& game) {
-	game.init(camera);
+	game.init();
 
 	while(running) {
 		// clear screen
@@ -69,7 +69,7 @@ void Engine::run(Game& game) {
 							SDL_RenderSetViewport(renderer, NULL);
 							
 							// reset camera
-							SDL_GetWindowSize(window, &camera.w, &camera.h);
+							// SDL_GetWindowSize(window, &camera.w, &camera.h);
 							break;
 					}
 				case SDL_KEYDOWN:
@@ -89,7 +89,7 @@ void Engine::run(Game& game) {
 		}
 
 		const unsigned char* keys = SDL_GetKeyboardState(NULL);
-		game.update(keys, camera);
+		game.update(keys);
 
 		// grab global texture IDs and pass into asset manager
 		game.getRenderItems(renderItemsBuffer);
