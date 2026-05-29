@@ -12,9 +12,9 @@ struct Position {
     float y;
 };
 
-struct Direction {
-    int x;
-    int y;
+struct Vector {
+    float x;
+    float y;
 };
 
 struct RenderItem {

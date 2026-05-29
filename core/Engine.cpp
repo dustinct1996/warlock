@@ -100,7 +100,7 @@ void Engine::run(Game& game) {
 			SDL_Rect dest;
 			dest.x = (int)renderItemsBuffer[i].position.x;
 			dest.y = (int)renderItemsBuffer[i].position.y;
-			LOG(INFO) << dest.x << " " << dest.y;
+			// LOG(INFO) << dest.x << " " << dest.y;
 			dest.h = renderItemsBuffer[i].size.h;
 			dest.w = renderItemsBuffer[i].size.w;
 

@@ -14,6 +14,6 @@ public:
     virtual RenderItem getRenderItem() = 0;
 protected:
     Position position;
-    Direction direction;
+    Vector direction;
     Dimensions dimensions;
 };
