@@ -98,8 +98,9 @@ void Engine::run(Game& game) {
 		for(int i = 0; i < renderItemsBuffer.size(); i++) {
 			SDL_Texture* texture = std::get<1>(assets.getTexture(renderItemsBuffer[i].texture));
 			SDL_Rect dest;
-			dest.x = renderItemsBuffer[i].position.x;
-			dest.y = renderItemsBuffer[i].position.y;
+			dest.x = (int)renderItemsBuffer[i].position.x;
+			dest.y = (int)renderItemsBuffer[i].position.y;
+			LOG(INFO) << dest.x << " " << dest.y;
 			dest.h = renderItemsBuffer[i].size.h;
 			dest.w = renderItemsBuffer[i].size.w;
 

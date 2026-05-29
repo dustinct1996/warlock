@@ -8,6 +8,11 @@ struct Dimensions {
 };
 
 struct Position {
+    float x;
+    float y;
+};
+
+struct Direction {
     int x;
     int y;
 };
