@@ -45,16 +45,21 @@ void Engine::createWindow() {
     }
 }
 
-void Engine::run(Game& game) {
+void Engine::run(Game& game) {		
 	game.init();
+	int cnt = 1;
+	double sum = 0;
 
 	while(running) {
+		auto start = std::chrono::system_clock::now();
+		auto duration = start.time_since_epoch();
+		auto startSeconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
 		// clear screen
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
-
-		// clear renderOrderBuffer
+		
 		renderItemsBuffer.clear();
+	
 
 		// update game state
 		SDL_Event e;
@@ -87,7 +92,6 @@ void Engine::run(Game& game) {
 					break;
 			}
 		}
-
 		const unsigned char* keys = SDL_GetKeyboardState(NULL);
 		game.update(keys);
 
@@ -108,6 +112,18 @@ void Engine::run(Game& game) {
 		}
 
 		SDL_RenderPresent(renderer);
+		
+		auto end = std::chrono::system_clock::now();
+		duration = end.time_since_epoch();
+		auto endSeconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+		sum += (endSeconds - startSeconds);
+
+		if (cnt == 750) {
+			LOG(INFO) << sum / 750;
+			sum = 0;
+			cnt = 0;
+		}
+		cnt++;
 	}
 }
 
