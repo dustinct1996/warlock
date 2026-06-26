@@ -1,4 +1,4 @@
-#include <SDL.h>
+#include <Include.h>
 #include <unordered_map>
 #include <string>
 
@@ -12,6 +12,7 @@ class AssetManager {
 public:
     ~AssetManager();
     void loadGlobalTextures(const std::string& path);
+    void loadLevelTextures(const std::string& path);
     void set(SDL_Renderer* renderer);
     void loadTexture(const std::string& id, const AssetScope& scope, const std::string& path);
     std::tuple<AssetScope, SDL_Texture*> getTexture(const std::string& id) const;

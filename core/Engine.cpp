@@ -1,6 +1,5 @@
 #include "Engine.h"
-#include "logging/Logging.h"
-#include <chrono>
+#include "Include.h"
 
 Engine::Engine(InitConfig& config) {
     init(config);
@@ -21,8 +20,7 @@ void Engine::init(InitConfig& config) {
 
 	assets.loadGlobalTextures(config.assetsLocation);
 
-	// init camera
-	// SDL_GetWindowSize(window, &camera.w, &camera.h);
+	assets.loadLevelTextures(config.assetsLocation);
 }
 
 void Engine::createWindow() {
@@ -36,6 +34,8 @@ void Engine::createWindow() {
     }
     
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	SDL_RenderSetViewport(renderer, nullptr);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     if (!renderer) {
 		LOG(ERROR) << "Error getting renderer: " << SDL_GetError();
@@ -47,36 +47,28 @@ void Engine::createWindow() {
 
 void Engine::run(Game& game) {		
 	game.init();
-	int cnt = 1;
-	double sum = 0;
+	
+	long start;
 
 	while(running) {
-		auto start = std::chrono::system_clock::now();
-		auto duration = start.time_since_epoch();
-		auto startSeconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
-		// clear screen
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		float timestep = 
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+    			std::chrono::steady_clock::now().time_since_epoch()
+			).count() - start;
+		start = std::chrono::duration_cast<std::chrono::milliseconds>(
+    				std::chrono::steady_clock::now().time_since_epoch()
+				).count();
+
 		SDL_RenderClear(renderer);
 		
 		renderItemsBuffer.clear();
-	
 
-		// update game state
 		SDL_Event e;
 		while(SDL_PollEvent(&e) != 0) {
 			switch (e.type) {
 				case SDL_QUIT:
 					running = false;
 					break;
-				case SDL_WINDOWEVENT:
-					switch (e.window.event) {
-						case SDL_WINDOWEVENT_SIZE_CHANGED:
-							SDL_RenderSetViewport(renderer, NULL);
-							
-							// reset camera
-							// SDL_GetWindowSize(window, &camera.w, &camera.h);
-							break;
-					}
 				case SDL_KEYDOWN:
 					if (e.key.keysym.sym == SDLK_F1) {
 	#ifdef DEVELOPER_BUILD
@@ -90,40 +82,58 @@ void Engine::run(Game& game) {
 	#endif
 					}
 					break;
+				case SDL_MOUSEWHEEL:
+					if (SDL_GetModState() & KMOD_CTRL) {
+						// Scroll away
+						if (e.wheel.y > 0) {
+							game.camera.updateZoom(0.16);
+						}
+						// Scroll toward
+						if (e.wheel.y < 0) {
+							LOG(INFO) << "Zooming out";
+							game.camera.updateZoom(-0.16);
+						}
+					}
+				break;
 			}
 		}
 		const unsigned char* keys = SDL_GetKeyboardState(NULL);
-		game.update(keys);
+		game.update(keys, timestep);
 
-		// grab global texture IDs and pass into asset manager
 		game.getRenderItems(renderItemsBuffer);
+		// "../../../assets/level_textures/rock"
 
-		// copy all sprites into renderer
+		SDL_Texture* texture = std::get<1>(assets.getTexture("rock"));
+		SDL_Rect dest;
+		float zoom = game.camera.getZoom();
+		int windowWidth;
+		int windowHeight;
+		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+		dest.x = ((300 - game.camera.getPosition().x) * (zoom == 0 ? 0.1 : zoom)) + (windowWidth / 2);
+		dest.y = ((300 - game.camera.getPosition().y) * (zoom == 0 ? 0.1 : zoom)) + (windowHeight / 2);
+		dest.h = 56 * (zoom == 0 ? 0.1 : zoom);
+		dest.w = 56 * (zoom == 0 ? 0.1 : zoom);
+
+		SDL_RenderCopy(renderer, texture, NULL, &dest);
+
 		for(int i = 0; i < renderItemsBuffer.size(); i++) {
 			SDL_Texture* texture = std::get<1>(assets.getTexture(renderItemsBuffer[i].texture));
 			SDL_Rect dest;
-			dest.x = (int)renderItemsBuffer[i].position.x;
-			dest.y = (int)renderItemsBuffer[i].position.y;
-			// LOG(INFO) << dest.x << " " << dest.y;
-			dest.h = renderItemsBuffer[i].size.h;
-			dest.w = renderItemsBuffer[i].size.w;
+			float zoom = game.camera.getZoom();
+			int windowWidth;
+			int windowHeight;
+			SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+			dest.x = (((int)renderItemsBuffer[i].position.x - game.camera.getPosition().x) * (zoom == 0 ? 0.1 : zoom)) + (windowWidth / 2);
+			dest.y = (((int)renderItemsBuffer[i].position.y - game.camera.getPosition().y) * (zoom == 0 ? 0.1 : zoom)) + (windowHeight / 2);
+			dest.h = renderItemsBuffer[i].size.h * (zoom == 0 ? 0.1 : zoom);
+			dest.w = renderItemsBuffer[i].size.w * (zoom == 0 ? 0.1 : zoom);
 
 			SDL_RenderCopy(renderer, texture, NULL, &dest);
 		}
 
 		SDL_RenderPresent(renderer);
-		
-		auto end = std::chrono::system_clock::now();
-		duration = end.time_since_epoch();
-		auto endSeconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
-		sum += (endSeconds - startSeconds);
-
-		if (cnt == 750) {
-			LOG(INFO) << sum / 750;
-			sum = 0;
-			cnt = 0;
-		}
-		cnt++;
 	}
 }
 

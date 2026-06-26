@@ -1,5 +1,10 @@
 #pragma once
 
+#include <SDL.h>
+#include "logging/Logging.h"
+#include <chrono>
+#include <utility>
+
 #include <string>
 
 struct Dimensions {
