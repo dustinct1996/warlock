@@ -13,7 +13,7 @@ void Engine::init(InitConfig& config) {
         LOG(INFO) << "Success initializing SDL";
     }
 
-	createWindow();
+	createWindow(config.windowWidth, config.windowHeight);
 
 	// init assetManager
 	assets.set(renderer); // TODO: should renderer be a shared_ptr?
@@ -23,8 +23,8 @@ void Engine::init(InitConfig& config) {
 	assets.loadLevelTextures(config.assetsLocation);
 }
 
-void Engine::createWindow() {
-    window = SDL_CreateWindow("Warlock", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+void Engine::createWindow(int width, int height) {
+    window = SDL_CreateWindow("Warlock", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (!window) {
 		LOG(ERROR) << "Error creating window: " << SDL_GetError();
@@ -45,6 +45,75 @@ void Engine::createWindow() {
     }
 }
 
+void Engine::render(Game& game) {
+	game.getRenderItems(renderItemsBuffer);
+	
+	for(int i = 0; i < renderItemsBuffer.size(); i++) {
+		SDL_Texture* texture = std::get<1>(assets.getTexture(renderItemsBuffer[i].texture));
+		SDL_Rect dest;
+		float zoom = game.camera.getZoom();
+		int windowWidth;
+		int windowHeight;
+		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderDrawPoint(renderer, 150, 150);
+
+		dest.x = (((int)renderItemsBuffer[i].position.x - game.camera.getPosition().x) * (zoom == 0 ? 0.1 : zoom)) + (windowWidth / 2);
+		dest.y = (((int)renderItemsBuffer[i].position.y - game.camera.getPosition().y) * (zoom == 0 ? 0.1 : zoom)) + (windowHeight / 2);
+		dest.h = renderItemsBuffer[i].size.h * (zoom == 0 ? 0.1 : zoom);
+		dest.w = renderItemsBuffer[i].size.w * (zoom == 0 ? 0.1 : zoom);
+
+		SDL_RenderCopy(renderer, texture, NULL, &dest);
+	}
+
+	SDL_RenderPresent(renderer);
+}
+
+
+void Engine::handleOneTimeEvents(Game& game) {
+	SDL_Event e;
+	
+	while(SDL_PollEvent(&e) != 0) {
+		switch (e.type) {
+			case SDL_QUIT:
+				running = false;
+				break;
+			case SDL_KEYDOWN:
+				if (e.key.keysym.sym == SDLK_F1) {
+#ifdef DEVELOPER_BUILD
+					if (!developerMode) {
+						LOG(INFO) << "Entering developer mode";
+						developerMode = true;
+					} else {
+						LOG(INFO) << "Exiting developer mode";
+						developerMode = false;
+					}
+#endif
+				}
+				break;
+			case SDL_MOUSEWHEEL:
+				if (SDL_GetModState() & KMOD_CTRL) {
+					// Scroll away
+					if (e.wheel.y > 0) {
+						game.camera.updateZoom(0.16);
+					}
+					// Scroll toward
+					if (e.wheel.y < 0) {
+						LOG(INFO) << "Zooming out";
+						game.camera.updateZoom(-0.16);
+					}
+				}
+			break;
+		}
+	}
+}
+
+
+void Engine::handleKeyboardStateEvents(float timestep, Game& game) {
+	const unsigned char* keys = SDL_GetKeyboardState(NULL);
+	game.update(keys, timestep);
+}
+
 void Engine::run(Game& game) {		
 	game.init();
 	
@@ -59,81 +128,16 @@ void Engine::run(Game& game) {
     				std::chrono::steady_clock::now().time_since_epoch()
 				).count();
 
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
 		
 		renderItemsBuffer.clear();
+		
+		handleOneTimeEvents(game);
 
-		SDL_Event e;
-		while(SDL_PollEvent(&e) != 0) {
-			switch (e.type) {
-				case SDL_QUIT:
-					running = false;
-					break;
-				case SDL_KEYDOWN:
-					if (e.key.keysym.sym == SDLK_F1) {
-	#ifdef DEVELOPER_BUILD
-						if (!developerMode) {
-							LOG(INFO) << "Entering developer mode";
-							developerMode = true;
-						} else {
-							LOG(INFO) << "Entering standard mode";
-							developerMode = false;
-						}
-	#endif
-					}
-					break;
-				case SDL_MOUSEWHEEL:
-					if (SDL_GetModState() & KMOD_CTRL) {
-						// Scroll away
-						if (e.wheel.y > 0) {
-							game.camera.updateZoom(0.16);
-						}
-						// Scroll toward
-						if (e.wheel.y < 0) {
-							LOG(INFO) << "Zooming out";
-							game.camera.updateZoom(-0.16);
-						}
-					}
-				break;
-			}
-		}
-		const unsigned char* keys = SDL_GetKeyboardState(NULL);
-		game.update(keys, timestep);
+		handleKeyboardStateEvents(timestep, game);
 
-		game.getRenderItems(renderItemsBuffer);
-		// "../../../assets/level_textures/rock"
-
-		SDL_Texture* texture = std::get<1>(assets.getTexture("rock"));
-		SDL_Rect dest;
-		float zoom = game.camera.getZoom();
-		int windowWidth;
-		int windowHeight;
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-
-		dest.x = ((300 - game.camera.getPosition().x) * (zoom == 0 ? 0.1 : zoom)) + (windowWidth / 2);
-		dest.y = ((300 - game.camera.getPosition().y) * (zoom == 0 ? 0.1 : zoom)) + (windowHeight / 2);
-		dest.h = 56 * (zoom == 0 ? 0.1 : zoom);
-		dest.w = 56 * (zoom == 0 ? 0.1 : zoom);
-
-		SDL_RenderCopy(renderer, texture, NULL, &dest);
-
-		for(int i = 0; i < renderItemsBuffer.size(); i++) {
-			SDL_Texture* texture = std::get<1>(assets.getTexture(renderItemsBuffer[i].texture));
-			SDL_Rect dest;
-			float zoom = game.camera.getZoom();
-			int windowWidth;
-			int windowHeight;
-			SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-
-			dest.x = (((int)renderItemsBuffer[i].position.x - game.camera.getPosition().x) * (zoom == 0 ? 0.1 : zoom)) + (windowWidth / 2);
-			dest.y = (((int)renderItemsBuffer[i].position.y - game.camera.getPosition().y) * (zoom == 0 ? 0.1 : zoom)) + (windowHeight / 2);
-			dest.h = renderItemsBuffer[i].size.h * (zoom == 0 ? 0.1 : zoom);
-			dest.w = renderItemsBuffer[i].size.w * (zoom == 0 ? 0.1 : zoom);
-
-			SDL_RenderCopy(renderer, texture, NULL, &dest);
-		}
-
-		SDL_RenderPresent(renderer);
+		render(game);
 	}
 }
 

@@ -6,6 +6,8 @@
 
 struct InitConfig {
     std::string assetsLocation;
+    int windowWidth;
+    int windowHeight;
 };
 
 class Game {

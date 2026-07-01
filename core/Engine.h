@@ -12,7 +12,10 @@ public:
 
 private:
     void init(InitConfig& config);
-    void createWindow();
+    void createWindow(int width, int height);
+    void render(Game& game);
+    void handleOneTimeEvents(Game& game);
+    void handleKeyboardStateEvents(float timestep, Game& game);
     SDL_Window* window;
     SDL_Renderer* renderer;
     AssetManager assets;
