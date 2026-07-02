@@ -50,18 +50,24 @@ void Engine::render(Game& game) {
 	
 	for(int i = 0; i < renderItemsBuffer.size(); i++) {
 		SDL_Texture* texture = std::get<1>(assets.getTexture(renderItemsBuffer[i].texture));
+
 		SDL_Rect dest;
-		float zoom = game.camera.getZoom();
 		int windowWidth;
 		int windowHeight;
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderDrawPoint(renderer, 150, 150);
 
-		dest.x = (((int)renderItemsBuffer[i].position.x - game.camera.getPosition().x) * (zoom == 0 ? 0.1 : zoom)) + (windowWidth / 2);
-		dest.y = (((int)renderItemsBuffer[i].position.y - game.camera.getPosition().y) * (zoom == 0 ? 0.1 : zoom)) + (windowHeight / 2);
-		dest.h = renderItemsBuffer[i].size.h * (zoom == 0 ? 0.1 : zoom);
-		dest.w = renderItemsBuffer[i].size.w * (zoom == 0 ? 0.1 : zoom);
+		float zoom = game.camera.getZoom();
+		Position cameraPosition = game.camera.getPosition();
+		
+		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+		dest.w = renderItemsBuffer[i].size.w * zoom;
+		dest.h = renderItemsBuffer[i].size.h * zoom;
+
+		dest.x = (int)((renderItemsBuffer[i].position.x - cameraPosition.x) * zoom);
+		dest.y = (int)((renderItemsBuffer[i].position.y - cameraPosition.y) * zoom);
+
+		dest.x += ((windowWidth / 2) - (dest.w / 2));
+		dest.y += ((windowHeight / 2) - (dest.h / 2));
 
 		SDL_RenderCopy(renderer, texture, NULL, &dest);
 	}
@@ -99,7 +105,6 @@ void Engine::handleOneTimeEvents(Game& game) {
 					}
 					// Scroll toward
 					if (e.wheel.y < 0) {
-						LOG(INFO) << "Zooming out";
 						game.camera.updateZoom(-0.16);
 					}
 				}

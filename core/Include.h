@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL.h>
-#include "logging/Logging.h"
+#include "Logging.h"
 #include <chrono>
 #include <utility>
 

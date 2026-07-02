@@ -16,10 +16,11 @@ private:
     void render(Game& game);
     void handleOneTimeEvents(Game& game);
     void handleKeyboardStateEvents(float timestep, Game& game);
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     AssetManager assets;
+    std::vector<RenderItem> renderItemsBuffer;
     bool developerMode = false;
     bool running = true;
-    std::vector<RenderItem> renderItemsBuffer;
 };

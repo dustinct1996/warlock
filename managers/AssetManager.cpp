@@ -1,5 +1,4 @@
 #include "AssetManager.h"
-#include "logging/Logging.h"
 #include <filesystem>
 
 AssetManager::~AssetManager() {
