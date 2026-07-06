@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LOGGING_H
+#define LOGGING_H
 
 #include <iostream>
 #include <sstream>
@@ -24,22 +25,23 @@ inline const char* toString(Severity s) {
 
 class LogMessage {
 public:
-    LogMessage(Severity severity, const char* file, int line)
-        : severity_(severity),
-        file_(file),
-        line_(line) {}
+    LogMessage(Severity logSeverity, const char* sourceFile, int logLine) {
+        severity = logSeverity;
+        file = sourceFile;
+        line = logLine;
+    }
 
     ~LogMessage() {
-        std::cout << "[" << toString(severity_) << "] "
-                  << std::filesystem::path(file_).filename().string().c_str() << ":" << line_
+        std::cout << "[" << toString(severity) << "] "
+                  << std::filesystem::path(file).filename().string().c_str() << ":" << line
                   << " (" << currentTimestamp() << "): "
-                  << stream_.str()
+                  << stream.str()
                   << std::endl;
     }
 
     template<typename T>
     LogMessage& operator<<(const T& value) {
-        stream_ << value;
+        stream << value;
         return *this;
     }
 
@@ -59,10 +61,10 @@ private:
         return ss.str();
     }
 
-    Severity severity_;
-    const char* file_;
-    int line_;
-    std::ostringstream stream_;
+    Severity severity;
+    const char* file;
+    int line;
+    std::ostringstream stream;
 };
 
 class DummyStream {
@@ -78,3 +80,5 @@ public:
 #else
 #define LOG(level) DummyStream()
 #endif
+
+#endif // LOGGING_H

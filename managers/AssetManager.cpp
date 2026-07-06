@@ -2,20 +2,20 @@
 #include <filesystem>
 
 AssetManager::~AssetManager() {
-    for (auto& pair : textures) {
-        SDL_DestroyTexture(std::get<1>(pair.second));
+    for (auto& idTexturePair : textures) {
+        SDL_DestroyTexture(idTexturePair.second);
     }
 }
 
-void AssetManager::loadGlobalTextures(const std::string& path) {
+void AssetManager::loadTextures(const std::string& path) {
 	if (!std::filesystem::exists(path)) {
 		LOG(ERROR) << path << " is not a path that exists";
 		return;
 	}
 
-    std::string globalTexturesPath = path + "/global_textures";
+    std::string texturesPath = path;
 
-	for (const auto& entry : std::filesystem::directory_iterator(globalTexturesPath)) {
+	for (const auto& entry : std::filesystem::directory_iterator(texturesPath)) {
         if (entry.path().extension() == ".bmp") {
             std::string file = entry.path().string();
 
@@ -24,29 +24,7 @@ void AssetManager::loadGlobalTextures(const std::string& path) {
 
 			std::string name = file.substr(slash + 1, dot - slash - 1);
 
-			loadTexture(name, AssetScope::GLOBAL, file);
-		}
-    }
-}
-
-void AssetManager::loadLevelTextures(const std::string& path) {
-	if (!std::filesystem::exists(path)) {
-		LOG(ERROR) << path << " is not a path that exists";
-		return;
-	}
-
-    std::string levelTexturesPath = path + "/level_textures";
-
-	for (const auto& entry : std::filesystem::directory_iterator(levelTexturesPath)) {
-        if (entry.path().extension() == ".bmp") {
-            std::string file = entry.path().string();
-
-			size_t slash = file.find_last_of('/');
-			size_t dot = file.find_last_of('.');
-
-			std::string name = file.substr(slash + 1, dot - slash - 1);
-
-			loadTexture(name, AssetScope::LEVEL, file);
+			loadTexture(name, file);
 		}
     }
 }
@@ -55,7 +33,7 @@ void AssetManager::set(SDL_Renderer* renderer) {
     this->renderer = renderer;
 }
 
-void AssetManager::loadTexture(const std::string& id, const AssetScope& scope, const std::string& path) {
+void AssetManager::loadTexture(const std::string& id, const std::string& path) {
     if (textures.count(id) > 0) {   
         return;
     }
@@ -78,12 +56,12 @@ void AssetManager::loadTexture(const std::string& id, const AssetScope& scope, c
 		exit(1);
 	}
 
-    textures[id] = {scope, texture};
+    textures[id] = texture;
     LOG(INFO) << "Success loading " << id << "'s texture";
 }
 
-std::tuple<AssetScope, SDL_Texture*> AssetManager::getTexture(const std::string& id) const {
-    std::unordered_map<std::string, std::tuple<AssetScope, SDL_Texture*>>::const_iterator it = textures.find(id);
+SDL_Texture* AssetManager::getTexture(const std::string& id) const {
+    std::unordered_map<std::string, SDL_Texture*>::const_iterator it = textures.find(id);
 
     if(it == textures.end()) {
         LOG(ERROR) << "Texture " << id << " could not be found";

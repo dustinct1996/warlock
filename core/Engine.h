@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ENGINE_H
+#define ENGINE_H
 
 #include "AssetManager.h"
 #include "Game.h"
@@ -15,7 +16,10 @@ private:
     void createWindow(int width, int height);
     void render(Game& game);
     void handleOneTimeEvents(Game& game);
-    void handleKeyboardStateEvents(float timestep, Game& game);
+    void handleGameEvents(float timestep, Game& game);
+    void sortRenderItemsBuffer();
+    void renderEntities(Game& game);
+    void loadTextures(const std::string& path);
 
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -24,3 +28,5 @@ private:
     bool developerMode = false;
     bool running = true;
 };
+
+#endif // ENGINE_H

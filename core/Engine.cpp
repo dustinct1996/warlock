@@ -1,5 +1,6 @@
+#include <algorithm>
 #include "Engine.h"
-#include "Include.h"
+#include "Utils.h"
 
 Engine::Engine(InitConfig& config) {
     init(config);
@@ -18,9 +19,12 @@ void Engine::init(InitConfig& config) {
 	// init assetManager
 	assets.set(renderer); // TODO: should renderer be a shared_ptr?
 
-	assets.loadGlobalTextures(config.assetsLocation);
+	// load constant textures
+	assets.loadTextures(config.constantAssetsLocation);
+}
 
-	assets.loadLevelTextures(config.assetsLocation);
+void Engine::loadTextures(const std::string& path) {
+	assets.loadTextures(path);
 }
 
 void Engine::createWindow(int width, int height) {
@@ -45,11 +49,15 @@ void Engine::createWindow(int width, int height) {
     }
 }
 
-void Engine::render(Game& game) {
-	game.getRenderItems(renderItemsBuffer);
-	
+void Engine::sortRenderItemsBuffer() {
+	std::sort(renderItemsBuffer.begin(), renderItemsBuffer.end(), [](const RenderItem& a, const RenderItem& b) {
+		return a.ySort < b.ySort;
+	});
+}
+
+void Engine::renderEntities(Game& game) {
 	for(int i = 0; i < renderItemsBuffer.size(); i++) {
-		SDL_Texture* texture = std::get<1>(assets.getTexture(renderItemsBuffer[i].texture));
+		SDL_Texture* texture = assets.getTexture(renderItemsBuffer[i].texture);
 
 		SDL_Rect dest;
 		int windowWidth;
@@ -71,6 +79,14 @@ void Engine::render(Game& game) {
 
 		SDL_RenderCopy(renderer, texture, NULL, &dest);
 	}
+}
+
+void Engine::render(Game& game) {
+	game.getRenderItems(renderItemsBuffer);
+
+	sortRenderItemsBuffer();
+	
+	renderEntities(game);
 
 	SDL_RenderPresent(renderer);
 }
@@ -114,7 +130,7 @@ void Engine::handleOneTimeEvents(Game& game) {
 }
 
 
-void Engine::handleKeyboardStateEvents(float timestep, Game& game) {
+void Engine::handleGameEvents(float timestep, Game& game) {
 	const unsigned char* keys = SDL_GetKeyboardState(NULL);
 	game.update(keys, timestep);
 }
@@ -140,7 +156,7 @@ void Engine::run(Game& game) {
 		
 		handleOneTimeEvents(game);
 
-		handleKeyboardStateEvents(timestep, game);
+		handleGameEvents(timestep, game);
 
 		render(game);
 	}

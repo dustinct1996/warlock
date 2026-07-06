@@ -1,11 +1,12 @@
-#pragma once
+#ifndef GAME_H
+#define GAME_H
 
-#include "Include.h"
+#include "Utils.h"
 #include <vector>
 #include "Camera.h"
 
 struct InitConfig {
-    std::string assetsLocation;
+    std::string constantAssetsLocation;
     int windowWidth;
     int windowHeight;
 };
@@ -21,3 +22,5 @@ public:
     
 	Camera camera;
 };
+
+#endif // GAME_H
