@@ -1,3 +1,6 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include "Utils.h"
 
 class Camera {
@@ -17,3 +20,5 @@ class Camera {
         Position position = {150, 150};
         float zoom = 1.0;
 };
+
+#endif // CAMERA_H

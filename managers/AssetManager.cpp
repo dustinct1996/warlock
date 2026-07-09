@@ -1,43 +1,33 @@
 #include "AssetManager.h"
 #include <filesystem>
 
-AssetManager::~AssetManager() {
-    for (auto& idTexturePair : textures) {
-        SDL_DestroyTexture(idTexturePair.second);
-    }
-}
-
-void AssetManager::loadTextures(const std::string& path) {
-	if (!std::filesystem::exists(path)) {
-		LOG(ERROR) << path << " is not a path that exists";
-		return;
-	}
-
-    std::string texturesPath = path;
-
-	for (const auto& entry : std::filesystem::directory_iterator(texturesPath)) {
-        if (entry.path().extension() == ".bmp") {
-            std::string file = entry.path().string();
-
-			size_t slash = file.find_last_of('/');
-			size_t dot = file.find_last_of('.');
-
-			std::string name = file.substr(slash + 1, dot - slash - 1);
-
-			loadTexture(name, file);
-		}
-    }
-}
-
-void AssetManager::set(SDL_Renderer* renderer) {
+AssetManager::AssetManager(SDL_Renderer* renderer) {
     this->renderer = renderer;
 }
 
-void AssetManager::loadTexture(const std::string& id, const std::string& path) {
-    if (textures.count(id) > 0) {   
-        return;
+AssetManager::~AssetManager() {
+    for (auto& idTexturePair : textures) {
+        SDL_DestroyTexture(idTexturePair.second.texture);
     }
+}
 
+void AssetManager::incrementOrLoadTexture(int id, const std::string& path) {
+    if (textures.count(id) > 0) {   
+        textures[id].refCnt++;
+    } else {
+		loadTexture(id, path);
+	}
+}
+
+void AssetManager::decrementOrDeleteTexture(int id) {
+    if (textures.count(id) > 0 && textures[id].refCnt > 1) {   
+        textures[id].refCnt--;
+    } else {
+		deleteTexture(id);
+	}
+}
+
+void AssetManager::loadTexture(int id, const std::string& path) {
 	SDL_Surface *surface;
 
 	surface = SDL_LoadBMP(path.c_str());
@@ -56,17 +46,22 @@ void AssetManager::loadTexture(const std::string& id, const std::string& path) {
 		exit(1);
 	}
 
-    textures[id] = texture;
-    LOG(INFO) << "Success loading " << id << "'s texture";
+	textures[id].texture = texture;
+	LOG(INFO) << "Success loading " << id << "'s texture";
 }
 
-SDL_Texture* AssetManager::getTexture(const std::string& id) const {
-    std::unordered_map<std::string, SDL_Texture*>::const_iterator it = textures.find(id);
+void AssetManager::deleteTexture(int id) {
+	textures.erase(id);
+	LOG(INFO) << "Success deleting " << id << "'s texture";
+}
+
+SDL_Texture* AssetManager::getTexture(int id) const {
+    std::unordered_map<int, Texture>::const_iterator it = textures.find(id);
 
     if(it == textures.end()) {
         LOG(ERROR) << "Texture " << id << " could not be found";
         return {};
     }
 
-    return it->second;
+    return it->second.texture;
 }

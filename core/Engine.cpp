@@ -2,11 +2,7 @@
 #include "Engine.h"
 #include "Utils.h"
 
-Engine::Engine(InitConfig& config) {
-    init(config);
-}
-
-void Engine::init(InitConfig& config) {
+Engine::Engine(InitConfig& config, AssetRegistry& assetReg) : assetRegistry(&assetReg), assets(renderer), engineAPI(assets) {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		LOG(ERROR) << "Error initializing SDL: " << SDL_GetError();
 		exit(1);
@@ -15,16 +11,6 @@ void Engine::init(InitConfig& config) {
     }
 
 	createWindow(config.windowWidth, config.windowHeight);
-
-	// init assetManager
-	assets.set(renderer); // TODO: should renderer be a shared_ptr?
-
-	// load constant textures
-	assets.loadTextures(config.constantAssetsLocation);
-}
-
-void Engine::loadTextures(const std::string& path) {
-	assets.loadTextures(path);
 }
 
 void Engine::createWindow(int width, int height) {
@@ -47,12 +33,6 @@ void Engine::createWindow(int width, int height) {
 	} else {
         LOG(INFO) << "Success getting renderer";
     }
-}
-
-void Engine::sortRenderItemsBuffer() {
-	std::sort(renderItemsBuffer.begin(), renderItemsBuffer.end(), [](const RenderItem& a, const RenderItem& b) {
-		return a.ySort < b.ySort;
-	});
 }
 
 void Engine::renderEntities(Game& game) {
@@ -79,6 +59,14 @@ void Engine::renderEntities(Game& game) {
 
 		SDL_RenderCopy(renderer, texture, NULL, &dest);
 	}
+		
+	renderItemsBuffer.clear();
+}
+
+void Engine::sortRenderItemsBuffer() {
+	std::sort(renderItemsBuffer.begin(), renderItemsBuffer.end(), [](const RenderItem& a, const RenderItem& b) {
+		return a.ySort < b.ySort;
+	});
 }
 
 void Engine::render(Game& game) {
@@ -91,6 +79,9 @@ void Engine::render(Game& game) {
 	SDL_RenderPresent(renderer);
 }
 
+// void updateLevelInternal(LevelID level) {
+
+// }
 
 void Engine::handleOneTimeEvents(Game& game) {
 	SDL_Event e;
@@ -129,7 +120,6 @@ void Engine::handleOneTimeEvents(Game& game) {
 	}
 }
 
-
 void Engine::handleGameEvents(float timestep, Game& game) {
 	const unsigned char* keys = SDL_GetKeyboardState(NULL);
 	game.update(keys, timestep);
@@ -137,6 +127,8 @@ void Engine::handleGameEvents(float timestep, Game& game) {
 
 void Engine::run(Game& game) {		
 	game.init();
+
+	game.acquireEngineAPI(engineAPI);
 	
 	long start;
 
@@ -151,8 +143,6 @@ void Engine::run(Game& game) {
 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderClear(renderer);
-		
-		renderItemsBuffer.clear();
 		
 		handleOneTimeEvents(game);
 

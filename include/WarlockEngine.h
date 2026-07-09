@@ -4,5 +4,6 @@
 #include "Utils.h"
 #include "Game.h"
 #include "Entity.h"
+#include "Camera.h"
 
 #endif // WARLOCKENGINE_H

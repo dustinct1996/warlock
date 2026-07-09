@@ -21,7 +21,7 @@ struct Direction {
 struct RenderItem {
     Dimensions size;
     Position position;
-    std::string texture;
+    int texture;
     float ySort;
 };
 

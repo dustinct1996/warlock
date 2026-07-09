@@ -8,16 +8,28 @@
 
 #include "Utils.h"
 
+enum class TextureType {
+    CONSTANT,
+    LEVEL
+};
+
+struct Texture {
+    SDL_Texture* texture;
+    int refCnt = 0;
+};
+
 class AssetManager {
 public:
+    AssetManager(SDL_Renderer* renderer);
     ~AssetManager();
-    void loadTextures(const std::string& path);
-    void set(SDL_Renderer* renderer);
-    void loadTexture(const std::string& id, const std::string& path);
-    SDL_Texture* getTexture(const std::string& id) const;
+    void incrementOrLoadTexture(int id, const std::string& path);
+    void decrementOrDeleteTexture(int id);
+    SDL_Texture* getTexture(int id) const;
 private:
+    void loadTexture(int id, const std::string& path);
+    void deleteTexture(int id);
     SDL_Renderer* renderer;
-    std::unordered_map<std::string, SDL_Texture*> textures;
+    std::unordered_map<int, Texture> textures;
 };
 
 #endif // ASSETMANAGER_H
