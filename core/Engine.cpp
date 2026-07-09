@@ -43,8 +43,8 @@ void Engine::renderEntities(Game& game) {
 		int windowWidth;
 		int windowHeight;
 
-		float zoom = game.camera.getZoom();
-		Position cameraPosition = game.camera.getPosition();
+		float zoom = game.getCamera().getZoom();
+		Position cameraPosition = game.getCamera().getPosition();
 		
 		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
@@ -108,11 +108,11 @@ void Engine::handleOneTimeEvents(Game& game) {
 				if (SDL_GetModState() & KMOD_CTRL) {
 					// Scroll away
 					if (e.wheel.y > 0) {
-						game.camera.updateZoom(0.16);
+						game.getCamera().updateZoom(0.16);
 					}
 					// Scroll toward
 					if (e.wheel.y < 0) {
-						game.camera.updateZoom(-0.16);
+						game.getCamera().updateZoom(-0.16);
 					}
 				}
 			break;

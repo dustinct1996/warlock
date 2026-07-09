@@ -1,6 +1,8 @@
 #ifndef ENGINEAPI_H
 #define ENGINEAPI_H
 
+#include <string>
+
 class AssetManager;
 
 class EngineAPI {
@@ -9,7 +11,7 @@ public:
     void requestTexture(int id, const std::string& path);
     void releaseTexture(int id);
 private:
-    AssetManager& assetManager;
+    AssetManager* assetManager;
 };
 
 #endif // ENGINEAPI_H

@@ -8,6 +8,7 @@
 #include "Utils.h"
 #include "Entity.h"
 #include "EngineAPI.h"
+#include "Camera.h"
 
 using AssetID = int;
 
@@ -28,12 +29,12 @@ public:
     virtual void init() = 0;
     virtual void update(const unsigned char* keys, float timestep) = 0;
     virtual void getRenderItems(std::vector<RenderItem>& renderItemsBuffer) = 0;
+    virtual Camera& getCamera() = 0; // TODO: This forces developers to only have one Camera. Make it so they can have as many as they want.
     virtual AssetRegistry& getAssetRegistry() = 0;
     virtual InitConfig& getInitConfig() = 0;
     inline void acquireEngineAPI(EngineAPI& engineAPI) {
         this->engineAPI = &engineAPI;
     }
-    
 
 protected:
     EngineAPI* engineAPI;
