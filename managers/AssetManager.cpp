@@ -1,14 +1,8 @@
 #include "AssetManager.h"
 #include <filesystem>
 
-AssetManager::AssetManager(SDL_Renderer* renderer) {
+void AssetManager::acquireRenderer(SDL_Renderer* renderer) {
     this->renderer = renderer;
-}
-
-AssetManager::~AssetManager() {
-    for (auto& idTexturePair : textures) {
-        SDL_DestroyTexture(idTexturePair.second.texture);
-    }
 }
 
 void AssetManager::incrementOrLoadTexture(int id, const std::string& path) {
@@ -46,7 +40,7 @@ void AssetManager::loadTexture(int id, const std::string& path) {
 		exit(1);
 	}
 
-	textures[id].texture = texture;
+	textures[id].texture = TexturePtr(texture);
 	LOG(INFO) << "Success loading " << id << "'s texture";
 }
 
@@ -63,5 +57,5 @@ SDL_Texture* AssetManager::getTexture(int id) const {
         return {};
     }
 
-    return it->second.texture;
+    return it->second.texture.get();
 }

@@ -1,33 +1,29 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#include <SDL.h>
 #include <string>
 
-struct Dimensions {
+struct Size {
     int h;
     int w;
 };
 
-struct Position {
+struct Point {
     float x;
     float y;
 };
 
-struct Direction {
-    float x;
-    float y;
-};
-
-struct RenderItem {
-    Dimensions size;
-    Position position;
+struct WorldEntity {
+    SDL_Rect spriteSheetLocation;
+    Size size;
+    Point worldPosition;
     int texture;
-    float ySort;
 };
 
-struct BoundingBox {
-    Dimensions size;
-    Position position;
-};
+// struct BoundingBox {
+//     Size size;
+//     Point position;
+// };
 
 #endif // STRUCTS_H

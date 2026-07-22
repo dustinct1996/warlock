@@ -18,7 +18,7 @@ struct InitConfig {
 };
 
 struct AssetRegistry {
-    std::unordered_map<AssetID, std::string /* pathToAsset */> textureRegistry;
+    std::unordered_map<AssetID, std::string /*pathToAsset*/> textureRegistry;
 };
 
 class Game {
@@ -26,20 +26,17 @@ public:
     // Virtual classes need to have constructors and destructors explicitly defined.
     Game() = default;
     virtual ~Game() = default;
-    virtual void init() = 0;
+    virtual void init(EngineAPI& engineAPI) = 0;
     virtual void update(const unsigned char* keys, float timestep) = 0;
-    virtual void getRenderItems(std::vector<RenderItem>& renderItemsBuffer) = 0;
+    virtual void getWorldEntities(std::vector<WorldEntity>& worldEntitiesVector) = 0;
     virtual Camera& getCamera() = 0; // TODO: This forces developers to only have one Camera. Make it so they can have as many as they want.
     virtual AssetRegistry& getAssetRegistry() = 0;
     virtual InitConfig& getInitConfig() = 0;
-    inline void acquireEngineAPI(EngineAPI& engineAPI) {
-        this->engineAPI = &engineAPI;
-    }
 
 protected:
-    EngineAPI* engineAPI;
+    EngineAPI* p_engineAPI = nullptr;
     AssetRegistry assetRegistry;
-    std::vector<std::unique_ptr<Entity>> renderEntities;
+    std::vector<std::unique_ptr<Entity>> worldEntities;
 };
 
 #endif // GAME_H

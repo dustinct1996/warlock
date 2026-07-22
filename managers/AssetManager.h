@@ -5,23 +5,26 @@
 
 #include <unordered_map>
 #include <string>
+#include <memory>
 
 #include "Utils.h"
 
-enum class TextureType {
-    CONSTANT,
-    LEVEL
+struct TextureDeleter {
+    void operator()(SDL_Texture* texture) const {
+        SDL_DestroyTexture(texture);
+    }
 };
 
+using TexturePtr = std::unique_ptr<SDL_Texture, TextureDeleter>;
+
 struct Texture {
-    SDL_Texture* texture;
+    TexturePtr texture;
     int refCnt = 0;
 };
 
 class AssetManager {
 public:
-    AssetManager(SDL_Renderer* renderer);
-    ~AssetManager();
+    void acquireRenderer(SDL_Renderer* renderer);
     void incrementOrLoadTexture(int id, const std::string& path);
     void decrementOrDeleteTexture(int id);
     SDL_Texture* getTexture(int id) const;

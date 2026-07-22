@@ -5,20 +5,24 @@
 
 class Camera {
     public:
-        Position getPosition() { return position; };
-        void updatePosition(Position newPosition) {
+        // Camera();
+        // Camera(int zoomMax, int zoomMin): max(zoomMax), min(zoomMin){};
+        Point getPosition() { return position; };
+        void updatePosition(Point newPosition) {
             position = newPosition;
         };
-        float getZoom() { return zoom; };
-        void updateZoom(float zoomIncrement) {
-            if (zoom + zoomIncrement < 4.1 &&
-                zoom + zoomIncrement > 0.5) {
+        int getZoom() { return zoom; };
+        void updateZoom(int zoomIncrement) {
+            if (zoom + zoomIncrement <= max &&
+                zoom + zoomIncrement >= min) {
                 zoom += zoomIncrement;
             }
         };
     private:
-        Position position = {150, 150};
-        float zoom = 1.0;
+        Point position = {150, 150};
+        int max = 5;
+        int min = 1;
+        int zoom = 1;
 };
 
 #endif // CAMERA_H

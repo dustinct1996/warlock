@@ -16,15 +16,15 @@ private:
     void createWindow(int width, int height);
     void render(Game& game);
     void handleOneTimeEvents(Game& game);
-    void handleGameEvents(float timestep, Game& game);
-    void sortRenderItemsBuffer();
-    void renderEntities(Game& game);
+    void updateGameState(float timestep, Game& game);
+    void sortWorldEntitiesVector();
+    void renderWorldEntities(Game& game);
     // void updateLevelInternal(LevelID level);
 
     SDL_Window* window;
     SDL_Renderer* renderer;
     AssetManager assets;
-    std::vector<RenderItem> renderItemsBuffer;
+    std::vector<WorldEntity> worldEntitiesVector;
     bool developerMode = false;
     bool running = true;
     AssetRegistry* assetRegistry = nullptr;
