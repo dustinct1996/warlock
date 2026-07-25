@@ -9,8 +9,7 @@
 #include "Entity.h"
 #include "EngineAPI.h"
 #include "Camera.h"
-
-using AssetID = int;
+#include "SpriteSheet.h"
 
 struct InitConfig {
     int windowWidth;
@@ -18,12 +17,11 @@ struct InitConfig {
 };
 
 struct AssetRegistry {
-    std::unordered_map<AssetID, std::string /*pathToAsset*/> textureRegistry;
+    std::unordered_map<int /* id */, std::unique_ptr<SpriteSheet>> spriteSheets;
 };
 
 class Game {
 public:
-    // Virtual classes need to have constructors and destructors explicitly defined.
     Game() = default;
     virtual ~Game() = default;
     virtual void init(EngineAPI& engineAPI) = 0;

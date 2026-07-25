@@ -3,7 +3,6 @@
 
 #include <SDL.h>
 #include "Utils.h"
-#include "Sprite.h"
 
 class Entity {
 public:
@@ -13,13 +12,14 @@ public:
     virtual void update(const unsigned char* keys, float timestep) = 0;
     virtual WorldEntity getWorldEntity() = 0;
     virtual Point getPosition() = 0;
-    // virtual BoundingBox getBoundingBox() = 0;
+    // virtual SDL_Rect getBoundingBox() = 0;
     virtual std::string getName() = 0;
+    virtual bool isSolid() = 0;
 protected:
     Point position;
     Point direction;
     Size dimensions;
-    // BoundingBox boundingBox;
+    SDL_Rect boundingBox;
 };
 
 #endif // ENTITY_H

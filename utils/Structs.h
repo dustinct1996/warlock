@@ -21,9 +21,4 @@ struct WorldEntity {
     int texture;
 };
 
-// struct BoundingBox {
-//     Size size;
-//     Point position;
-// };
-
 #endif // STRUCTS_H

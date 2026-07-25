@@ -58,6 +58,15 @@ void Engine::renderWorldEntities(Game& game) {
 
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
+		// SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+		// SDL_Rect boundingBox;
+		
+		// boundingBox.x = dest.x;
+		// boundingBox.y = dest.y;
+		// boundingBox.w = dest.w + 4;
+		// boundingBox.h = dest.h + 4;
+
+		// SDL_RenderDrawRect(renderer, &boundingBox);
 
 		SDL_RenderCopy(renderer, texture, &worldEntitiesVector[i].spriteSheetLocation, &dest);
 	}
@@ -72,6 +81,10 @@ void Engine::sortWorldEntitiesVector() {
 }
 
 void Engine::render(Game& game) {
+	// game.getBackgroundTiles();
+
+	// renderBackgroundTiles(game);
+
 	game.getWorldEntities(worldEntitiesVector);
 
 	sortWorldEntitiesVector();
@@ -133,6 +146,7 @@ void Engine::run(Game& game) {
 	auto previous = std::chrono::steady_clock::now();
 
 	while(running) {
+		// SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		auto current = std::chrono::steady_clock::now();
 		
 		float timestep = std::chrono::duration<float>(current - previous).count();
