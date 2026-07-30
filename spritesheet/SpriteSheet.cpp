@@ -1,6 +1,6 @@
 #include "SpriteSheet.h"
 
-SpriteSheet::SpriteSheet(int spriteSheetID, int spriteSizeX, int spriteSizeY, int spriteOffset, int sheetMargin, std::string pathToTexture):
+SpriteSheet::SpriteSheet(unsigned int spriteSheetID, int spriteSizeX, int spriteSizeY, unsigned char spriteOffset, unsigned char sheetMargin, std::string pathToTexture):
     id(spriteSheetID), 
     size{spriteSizeX, spriteSizeY},
     offset(spriteOffset),

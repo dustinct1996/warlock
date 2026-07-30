@@ -3,7 +3,7 @@
 #include "Utils.h"
 
 Engine::Engine(InitConfig& config, AssetRegistry& assetReg) : assetRegistry(&assetReg), assets(), engineAPI(assets) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
 		LOG(ERROR) << "Error initializing SDL: " << SDL_GetError();
 		exit(1);
 	} else {
@@ -18,7 +18,7 @@ Engine::Engine(InitConfig& config, AssetRegistry& assetReg) : assetRegistry(&ass
 void Engine::createWindow(int width, int height) {
     window = SDL_CreateWindow("Warlock", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-    if (!window) {
+    if(!window) {
 		LOG(ERROR) << "Error creating window: " << SDL_GetError();
 		exit(1);
 	} else {
@@ -29,7 +29,7 @@ void Engine::createWindow(int width, int height) {
 	SDL_RenderSetViewport(renderer, nullptr);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    if (!renderer) {
+    if(!renderer) {
 		LOG(ERROR) << "Error getting renderer: " << SDL_GetError();
 		exit(1);
 	} else {
@@ -58,15 +58,6 @@ void Engine::renderWorldEntities(Game& game) {
 
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
-		// SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-		// SDL_Rect boundingBox;
-		
-		// boundingBox.x = dest.x;
-		// boundingBox.y = dest.y;
-		// boundingBox.w = dest.w + 4;
-		// boundingBox.h = dest.h + 4;
-
-		// SDL_RenderDrawRect(renderer, &boundingBox);
 
 		SDL_RenderCopy(renderer, texture, &worldEntitiesVector[i].spriteSheetLocation, &dest);
 	}
@@ -107,9 +98,9 @@ void Engine::handleOneTimeEvents(Game& game) {
 				running = false;
 				break;
 			case SDL_KEYDOWN:
-				if (e.key.keysym.sym == SDLK_F1) {
+				if(e.key.keysym.sym == SDLK_F1) {
 #ifdef DEVELOPER_BUILD
-					if (!developerMode) {
+					if(!developerMode) {
 						LOG(INFO) << "Entering developer mode";
 						developerMode = true;
 					} else {
@@ -120,13 +111,13 @@ void Engine::handleOneTimeEvents(Game& game) {
 				}
 				break;
 			case SDL_MOUSEWHEEL:
-				if (SDL_GetModState() & KMOD_CTRL) {
+				if(SDL_GetModState() & KMOD_CTRL) {
 					// Scroll away
-					if (e.wheel.y > 0) {
+					if(e.wheel.y > 0) {
 						game.getCamera().updateZoom(1);
 					}
 					// Scroll toward
-					if (e.wheel.y < 0) {
+					if(e.wheel.y < 0) {
 						game.getCamera().updateZoom(-1);
 					}
 				}

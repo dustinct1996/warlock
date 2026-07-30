@@ -21,4 +21,19 @@ struct WorldEntity {
     int texture;
 };
 
+struct CollisionBox {
+    Size box;
+
+    bool intersects(const Size& otherBox) {
+        if(box.x < (otherBox.x + otherBox.w) &&
+          (box.x + box.w) > otherBox.x &&
+           box.y < (otherBox.y + otherBox.h) &&
+          (box.y + box.h) > otherBox.y) {
+            return true;
+        }
+
+        return false;
+    }
+};
+
 #endif // STRUCTS_H

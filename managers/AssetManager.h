@@ -25,14 +25,14 @@ struct Texture {
 class AssetManager {
 public:
     void acquireRenderer(SDL_Renderer* renderer);
-    void incrementOrLoadTexture(int id, const std::string& path);
-    void decrementOrDeleteTexture(int id);
-    SDL_Texture* getTexture(int id) const;
+    void incrementOrLoadTexture(unsigned int id, const std::string& path);
+    void decrementOrDeleteTexture(unsigned int id);
+    SDL_Texture* getTexture(unsigned int id) const;
 private:
-    void loadTexture(int id, const std::string& path);
-    void deleteTexture(int id);
+    void loadTexture(unsigned int id, const std::string& path);
+    void deleteTexture(unsigned int id);
     SDL_Renderer* renderer;
-    std::unordered_map<int, Texture> textures;
+    std::unordered_map<unsigned int, Texture> textures;
 };
 
 #endif // ASSETMANAGER_H

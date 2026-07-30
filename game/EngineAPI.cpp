@@ -3,10 +3,10 @@
 
 EngineAPI::EngineAPI(AssetManager& assets) : assetManager(&assets) {}
 
-void EngineAPI::requestTexture(int id, const std::string& path) {
+void EngineAPI::requestTexture(unsigned int id, const std::string& path) {
     assetManager->incrementOrLoadTexture(id, path);
 }
 
-void EngineAPI::releaseTexture(int id) {
+void EngineAPI::releaseTexture(unsigned int id) {
     assetManager->decrementOrDeleteTexture(id);
 }

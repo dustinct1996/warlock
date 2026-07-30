@@ -17,7 +17,7 @@ struct InitConfig {
 };
 
 struct AssetRegistry {
-    std::unordered_map<int /* id */, std::unique_ptr<SpriteSheet>> spriteSheets;
+    std::unordered_map<unsigned int /* id */, std::unique_ptr<SpriteSheet>> spriteSheets;
 };
 
 class Game {

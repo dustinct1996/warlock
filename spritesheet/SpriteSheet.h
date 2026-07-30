@@ -5,15 +5,15 @@
 
 class SpriteSheet {
 public:
-    SpriteSheet(int spriteSheetID, int spriteSizeX, int spriteSizeY, int spriteOffset, int sheetMargin, std::string pathToTexture);
+    SpriteSheet(unsigned int spriteSheetID, int spriteSizeX, int spriteSizeY, unsigned char spriteOffset, unsigned char sheetMargin, std::string pathToTexture);
     SDL_Rect getSprite(int x, int y) const;
-    int getTextureID() const { return id; };
+    unsigned int getTextureID() const { return id; };
     std::string getPath() { return filePath; };
 private:
-    int id;
+    unsigned int id;
     Size size;
-    char offset;
-    char margin;
+    unsigned char offset;
+    unsigned char margin;
     std::string filePath;
 };
 

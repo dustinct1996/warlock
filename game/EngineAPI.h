@@ -8,8 +8,8 @@ class AssetManager;
 class EngineAPI {
 public:
     EngineAPI(AssetManager& assets);
-    void requestTexture(int id, const std::string& path);
-    void releaseTexture(int id);
+    void requestTexture(unsigned int id, const std::string& path);
+    void releaseTexture(unsigned int id);
 private:
     AssetManager* assetManager;
 };
