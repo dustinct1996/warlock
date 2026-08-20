@@ -5,8 +5,8 @@
 #include <string>
 
 struct Size {
-    int h;
-    int w;
+    uint32_t h;
+    uint32_t w;
 };
 
 struct Point {
@@ -14,17 +14,10 @@ struct Point {
     float y;
 };
 
-struct WorldEntity {
-    SDL_Rect spriteSheetLocation;
-    Size size;
-    Point worldPosition;
-    int texture;
-};
-
 struct CollisionBox {
-    Size box;
+    SDL_Rect box;
 
-    bool intersects(const Size& otherBox) {
+    bool intersects(const SDL_Rect& otherBox) {
         if(box.x < (otherBox.x + otherBox.w) &&
           (box.x + box.w) > otherBox.x &&
            box.y < (otherBox.y + otherBox.h) &&
@@ -34,6 +27,13 @@ struct CollisionBox {
 
         return false;
     }
+};
+
+struct WorldEntity {
+    SDL_Rect spriteSheetLocation;
+    Size size;
+    Point worldPosition;
+    uint32_t texture;
 };
 
 #endif // STRUCTS_H

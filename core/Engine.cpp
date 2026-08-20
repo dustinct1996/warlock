@@ -2,56 +2,30 @@
 #include "Engine.h"
 #include "Utils.h"
 
-Engine::Engine(InitConfig& config, AssetRegistry& assetReg) : assetRegistry(&assetReg), assets(), engineAPI(assets) {
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-		LOG(ERROR) << "Error initializing SDL: " << SDL_GetError();
-		exit(1);
-	} else {
-        LOG(INFO) << "Success initializing SDL";
-    }
-
-	createWindow(config.windowWidth, config.windowHeight);
-
-	assets.acquireRenderer(renderer);
-}
-
-void Engine::createWindow(int width, int height) {
-    window = SDL_CreateWindow("Warlock", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
-
-    if(!window) {
-		LOG(ERROR) << "Error creating window: " << SDL_GetError();
-		exit(1);
-	} else {
-        LOG(INFO) << "Success creating window";
-    }
-    
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-	SDL_RenderSetViewport(renderer, nullptr);
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-    if(!renderer) {
-		LOG(ERROR) << "Error getting renderer: " << SDL_GetError();
-		exit(1);
-	} else {
-        LOG(INFO) << "Success getting renderer";
-    }
-}
+Engine::Engine(AssetRegistry& assetReg):
+	sdl(),
+	window(1280, 720),
+	renderer(window.getWindow()),
+	assets(),
+	engineAPI(renderer, assets),
+	assetRegistry(&assetReg),
+	map({}) {}
 
 void Engine::renderWorldEntities(Game& game) {
-	for(int i = 0; i < worldEntitiesVector.size(); i++) {
+	for(uint32_t i = 0; i < worldEntitiesVector.size(); i++) {
 		SDL_Texture* texture = assets.getTexture(worldEntitiesVector[i].texture);
 
 		float zoom = game.getCamera().getZoom();
 		Point cameraPosition = game.getCamera().getPosition();
 
-		int screenPositionX = (int)((worldEntitiesVector[i].worldPosition.x - cameraPosition.x) * zoom);
-		int screenPositionY = (int)((worldEntitiesVector[i].worldPosition.y - cameraPosition.y) * zoom);
+		uint32_t screenPositionX = (uint32_t)((worldEntitiesVector[i].worldPosition.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((worldEntitiesVector[i].worldPosition.y - cameraPosition.y) * zoom);
 
 		SDL_Rect dest;
 		int windowWidth;
 		int windowHeight;
 		
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+		window.getWindowSize(&windowWidth, &windowHeight);
 
 		dest.w = worldEntitiesVector[i].size.w * zoom;
 		dest.h = worldEntitiesVector[i].size.h * zoom;
@@ -59,10 +33,64 @@ void Engine::renderWorldEntities(Game& game) {
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		SDL_RenderCopy(renderer, texture, &worldEntitiesVector[i].spriteSheetLocation, &dest);
+		renderer.copyToRenderer(texture, &worldEntitiesVector[i].spriteSheetLocation, &dest);
 	}
 		
 	worldEntitiesVector.clear();
+}
+
+void Engine::renderBackground(Game& game) {
+	float zoom = game.getCamera().getZoom();
+	Point cameraPosition = game.getCamera().getPosition();
+
+	std::vector<WorldEntity> backgroundTiles = map.getBackgroundTiles();
+
+	for(int i = 0; i < backgroundTiles.size(); i++) {
+		SDL_Texture* texture = assets.getTexture(backgroundTiles[i].texture);
+		uint32_t screenPositionX = (uint32_t)((backgroundTiles[i].worldPosition.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((backgroundTiles[i].worldPosition.y - cameraPosition.y) * zoom);
+
+		SDL_Rect dest;
+		int windowWidth;
+		int windowHeight;
+		
+		window.getWindowSize(&windowWidth, &windowHeight);
+
+		dest.w = backgroundTiles[i].size.w * zoom;
+		dest.h = backgroundTiles[i].size.h * zoom;
+
+		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
+		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
+
+		renderer.copyToRenderer(texture, &backgroundTiles[i].spriteSheetLocation, &dest);
+	}
+}
+
+void Engine::renderForeground(Game& game) {
+	float zoom = game.getCamera().getZoom();
+	Point cameraPosition = game.getCamera().getPosition();
+
+	std::vector<WorldEntity> foregroundTiles = map.getForegroundTiles();
+
+	for(int i = 0; i < foregroundTiles.size(); i++) {
+		SDL_Texture* texture = assets.getTexture(foregroundTiles[i].texture);
+		uint32_t screenPositionX = (uint32_t)((foregroundTiles[i].worldPosition.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((foregroundTiles[i].worldPosition.y - cameraPosition.y) * zoom);
+
+		SDL_Rect dest;
+		int windowWidth;
+		int windowHeight;
+		
+		window.getWindowSize(&windowWidth, &windowHeight);
+
+		dest.w = foregroundTiles[i].size.w * zoom;
+		dest.h = foregroundTiles[i].size.h * zoom;
+
+		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
+		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
+
+		renderer.copyToRenderer(texture, &foregroundTiles[i].spriteSheetLocation, &dest);
+	}
 }
 
 void Engine::sortWorldEntitiesVector() {
@@ -72,17 +100,27 @@ void Engine::sortWorldEntitiesVector() {
 }
 
 void Engine::render(Game& game) {
-	// game.getBackgroundTiles();
+	game.getCurrentMap(map);
 
-	// renderBackgroundTiles(game);
+	auto drawColor = map.getBackgroundColor();
+
+	renderer.setRenderDrawColor(drawColor.r, drawColor.g, drawColor.b, drawColor.a);
+
+	renderBackground(game);
 
 	game.getWorldEntities(worldEntitiesVector);
+
+	std::vector<WorldEntity> mapEntities = map.getEntities();
+
+	worldEntitiesVector.insert(worldEntitiesVector.end(), mapEntities.begin(), mapEntities.end());
 
 	sortWorldEntitiesVector();
 	
 	renderWorldEntities(game);
 
-	SDL_RenderPresent(renderer);
+	renderForeground(game);
+
+	renderer.render();
 }
 
 // void updateLevelInternal(LevelID level) {
@@ -114,11 +152,11 @@ void Engine::handleOneTimeEvents(Game& game) {
 				if(SDL_GetModState() & KMOD_CTRL) {
 					// Scroll away
 					if(e.wheel.y > 0) {
-						game.getCamera().updateZoom(1);
+						game.getCamera().increaseZoom();
 					}
 					// Scroll toward
 					if(e.wheel.y < 0) {
-						game.getCamera().updateZoom(-1);
+						game.getCamera().decreaseZoom();
 					}
 				}
 			break;
@@ -128,7 +166,7 @@ void Engine::handleOneTimeEvents(Game& game) {
 
 void Engine::updateGameState(float timestep, Game& game) {
 	const unsigned char* keys = SDL_GetKeyboardState(NULL);
-	game.update(keys, timestep);
+	game.updateMovement(keys, timestep);
 }
 
 void Engine::run(Game& game) {
@@ -137,14 +175,13 @@ void Engine::run(Game& game) {
 	auto previous = std::chrono::steady_clock::now();
 
 	while(running) {
-		// SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		auto current = std::chrono::steady_clock::now();
 		
 		float timestep = std::chrono::duration<float>(current - previous).count();
 
 		previous = current;
 
-		SDL_RenderClear(renderer);
+		renderer.clear();
 		
 		handleOneTimeEvents(game);
 
@@ -152,11 +189,4 @@ void Engine::run(Game& game) {
 
 		render(game);
 	}
-}
-
-Engine::~Engine() {
-    LOG(INFO) << "Destroying SDL window";
-    SDL_DestroyWindow(window);
-    LOG(INFO) << "Quitting program";
-	SDL_Quit();
 }

@@ -4,13 +4,15 @@
 #include <string>
 
 class AssetManager;
+class Renderer;
 
 class EngineAPI {
 public:
-    EngineAPI(AssetManager& assets);
-    void requestTexture(unsigned int id, const std::string& path);
-    void releaseTexture(unsigned int id);
+    EngineAPI(Renderer& sdlRenderer, AssetManager& assets);
+    void requestTexture(uint32_t id, const std::string& path);
+    void releaseTexture(uint32_t id);
 private:
+    Renderer* renderer;
     AssetManager* assetManager;
 };
 

@@ -9,30 +9,28 @@
 
 #include "Utils.h"
 
-struct TextureDeleter {
+struct SDLTextureDeleter {
     void operator()(SDL_Texture* texture) const {
         SDL_DestroyTexture(texture);
     }
 };
 
-using TexturePtr = std::unique_ptr<SDL_Texture, TextureDeleter>;
+using TexturePointer = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 
 struct Texture {
-    TexturePtr texture;
+    TexturePointer texture;
     int refCnt = 0;
 };
 
 class AssetManager {
 public:
-    void acquireRenderer(SDL_Renderer* renderer);
-    void incrementOrLoadTexture(unsigned int id, const std::string& path);
-    void decrementOrDeleteTexture(unsigned int id);
-    SDL_Texture* getTexture(unsigned int id) const;
+    SDL_Surface* incrementOrCreateSurface(uint32_t id, const std::string& path);
+    void addTexture(uint32_t id, SDL_Texture* texture);
+    void decrementOrDeleteTexture(uint32_t id);
+    SDL_Texture* getTexture(uint32_t id) const;
 private:
-    void loadTexture(unsigned int id, const std::string& path);
-    void deleteTexture(unsigned int id);
-    SDL_Renderer* renderer;
-    std::unordered_map<unsigned int, Texture> textures;
+    void deleteTexture(uint32_t id);
+    std::unordered_map<uint32_t, Texture> textures;
 };
 
 #endif // ASSETMANAGER_H

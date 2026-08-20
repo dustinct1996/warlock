@@ -4,32 +4,43 @@
 #include "AssetManager.h"
 #include "Game.h"
 #include "EngineAPI.h"
+#include "SDLContext.h"
+#include "Window.h"
+#include "Renderer.h"
+#include "TiledMap.h"
+
+struct SDLDeleter {
+    void operator()(SDLContext* context) const {
+	    SDL_Quit();
+    }
+};
 
 class Engine {
 public:
-    Engine(InitConfig& config, AssetRegistry& assetRegistry);
-    ~Engine();
+    Engine(AssetRegistry& assetRegistry);
     void run(Game& game);
     void loadAssets(const std::string& path);
 
 private:
-    void createWindow(int width, int height);
     void render(Game& game);
+    void renderBackground(Game& game);
+    void renderForeground(Game& game);
     void handleOneTimeEvents(Game& game);
     void updateGameState(float timestep, Game& game);
     void sortWorldEntitiesVector();
     void renderWorldEntities(Game& game);
     // void updateLevelInternal(LevelID level);
 
-    SDL_Window* window;
-    SDL_Renderer* renderer;
+    std::unique_ptr<SDLContext, SDLDeleter> sdl;
+    Window window;
+    Renderer renderer;
     AssetManager assets;
+    EngineAPI engineAPI;
+    AssetRegistry* assetRegistry = nullptr;
+    TiledMap map;
     std::vector<WorldEntity> worldEntitiesVector;
     bool developerMode = false;
     bool running = true;
-    AssetRegistry* assetRegistry = nullptr;
-    EngineAPI engineAPI;
-    // LevelID currentLevel;
 };
 
 #endif // ENGINE_H

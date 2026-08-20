@@ -25,7 +25,7 @@ inline const char* toString(Severity s) {
 
 class LogMessage {
 public:
-    LogMessage(Severity logSeverity, const char* sourceFile, int logLine) {
+    LogMessage(Severity logSeverity, const char* sourceFile, uint32_t logLine) {
         severity = logSeverity;
         file = sourceFile;
         line = logLine;
@@ -63,7 +63,7 @@ private:
 
     Severity severity;
     const char* file;
-    int line;
+    uint32_t line;
     std::ostringstream stream;
 };
 

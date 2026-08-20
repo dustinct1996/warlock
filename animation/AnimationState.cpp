@@ -1,18 +1,18 @@
 #include "AnimationState.h"
 
-AnimationState::AnimationState(): frameIncrementationTrigger_(0.1) {}
+AnimationState::AnimationState(): frameIncrementationTrigger(0.1) {}
 
-AnimationState::AnimationState(float frameIncrementationTrigger): frameIncrementationTrigger_(frameIncrementationTrigger) {}
+AnimationState::AnimationState(float trigger): frameIncrementationTrigger(trigger) {}
 
 void AnimationState::update(float timestep) {
-    animationTimer_ += timestep;
+    animationTimer += timestep;
 
-    if (animationTimer_ >= frameIncrementationTrigger_) {
-        animationTimer_ = 0;
-        currentFrame_++;
+    if (animationTimer >= frameIncrementationTrigger) {
+        animationTimer = 0;
+        currentFrame++;
     }
 }
 
-unsigned int AnimationState::getFrameCounter() {
-    return currentFrame_;
+uint32_t AnimationState::getFrameCounter() {
+    return currentFrame;
 }
