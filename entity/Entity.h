@@ -10,7 +10,7 @@ public:
     Entity(uint32_t entityId, float x, float y, uint32_t h, uint32_t w) : id(entityId), position{x, y}, dimensions{h, w} {};
     virtual ~Entity() = default;
     virtual void move(const unsigned char* keys, float timestep) = 0;
-    virtual WorldEntity getWorldEntity() = 0;
+    virtual RenderableTexture getRenderableTexture() = 0;
     virtual Point getPosition() = 0;
     virtual CollisionBox getCollisionBox() = 0;
     virtual uint32_t getID() = 0;

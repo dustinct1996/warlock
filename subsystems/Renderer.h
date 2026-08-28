@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <memory>
+#include "Utils.h"
 
 struct SDLRendererDeleter {
     void operator()(SDL_Renderer* renderer) const {
@@ -19,7 +20,14 @@ public:
         uint8_t b = 255,
         uint8_t a = 255
     );
-    void copyToRenderer(SDL_Texture* texture, SDL_Rect* srcRect, SDL_Rect* dstRect);
+    void copyToRenderer(
+        SDL_Texture* texture,
+        Rectangle* subTexture,
+        Rectangle* rendererPortion,
+        double rotation,
+        Point* rotationAxis,
+        Reflection reflection);
+
     void clear();
     void render();
     void setRenderDrawColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <optional>
 #include "Engine.h"
 #include "Utils.h"
 
@@ -8,8 +9,7 @@ Engine::Engine(AssetRegistry& assetReg):
 	renderer(window.getWindow()),
 	assets(),
 	engineAPI(renderer, assets),
-	assetRegistry(&assetReg),
-	map({}) {}
+	assetRegistry(&assetReg) {}
 
 void Engine::renderWorldEntities(Game& game) {
 	for(uint32_t i = 0; i < worldEntitiesVector.size(); i++) {
@@ -18,10 +18,10 @@ void Engine::renderWorldEntities(Game& game) {
 		float zoom = game.getCamera().getZoom();
 		Point cameraPosition = game.getCamera().getPosition();
 
-		uint32_t screenPositionX = (uint32_t)((worldEntitiesVector[i].worldPosition.x - cameraPosition.x) * zoom);
-		uint32_t screenPositionY = (uint32_t)((worldEntitiesVector[i].worldPosition.y - cameraPosition.y) * zoom);
+		uint32_t screenPositionX = (uint32_t)((worldEntitiesVector[i].position.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((worldEntitiesVector[i].position.y - cameraPosition.y) * zoom);
 
-		SDL_Rect dest;
+		Rectangle dest;
 		int windowWidth;
 		int windowHeight;
 		
@@ -33,24 +33,31 @@ void Engine::renderWorldEntities(Game& game) {
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		renderer.copyToRenderer(texture, &worldEntitiesVector[i].spriteSheetLocation, &dest);
+		renderer.copyToRenderer(
+			texture, 
+			&worldEntitiesVector[i].subTexture, 
+			&dest,
+			worldEntitiesVector[i].rotation,
+			worldEntitiesVector[i].rotationAxis.has_value() ? &worldEntitiesVector[i].rotationAxis.value() : nullptr,
+			worldEntitiesVector[i].reflection
+		);
 	}
 		
 	worldEntitiesVector.clear();
 }
 
-void Engine::renderBackground(Game& game) {
+void Engine::renderBackground(Game& game, TiledMap& map) {
 	float zoom = game.getCamera().getZoom();
 	Point cameraPosition = game.getCamera().getPosition();
 
-	std::vector<WorldEntity> backgroundTiles = map.getBackgroundTiles();
+	std::vector<RenderableTexture> backgroundTiles = map.getBackgroundTiles();
 
 	for(int i = 0; i < backgroundTiles.size(); i++) {
 		SDL_Texture* texture = assets.getTexture(backgroundTiles[i].texture);
-		uint32_t screenPositionX = (uint32_t)((backgroundTiles[i].worldPosition.x - cameraPosition.x) * zoom);
-		uint32_t screenPositionY = (uint32_t)((backgroundTiles[i].worldPosition.y - cameraPosition.y) * zoom);
+		uint32_t screenPositionX = (uint32_t)((backgroundTiles[i].position.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((backgroundTiles[i].position.y - cameraPosition.y) * zoom);
 
-		SDL_Rect dest;
+		Rectangle dest;
 		int windowWidth;
 		int windowHeight;
 		
@@ -62,22 +69,29 @@ void Engine::renderBackground(Game& game) {
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		renderer.copyToRenderer(texture, &backgroundTiles[i].spriteSheetLocation, &dest);
+		renderer.copyToRenderer(
+			texture, 
+			&backgroundTiles[i].subTexture, 
+			&dest,
+			backgroundTiles[i].rotation,
+			backgroundTiles[i].rotationAxis.has_value() ? &backgroundTiles[i].rotationAxis.value() : nullptr,
+			backgroundTiles[i].reflection
+		);
 	}
 }
 
-void Engine::renderForeground(Game& game) {
+void Engine::renderForeground(Game& game, TiledMap& map) {
 	float zoom = game.getCamera().getZoom();
 	Point cameraPosition = game.getCamera().getPosition();
 
-	std::vector<WorldEntity> foregroundTiles = map.getForegroundTiles();
+	std::vector<RenderableTexture> foregroundTiles = map.getForegroundTiles();
 
 	for(int i = 0; i < foregroundTiles.size(); i++) {
 		SDL_Texture* texture = assets.getTexture(foregroundTiles[i].texture);
-		uint32_t screenPositionX = (uint32_t)((foregroundTiles[i].worldPosition.x - cameraPosition.x) * zoom);
-		uint32_t screenPositionY = (uint32_t)((foregroundTiles[i].worldPosition.y - cameraPosition.y) * zoom);
+		uint32_t screenPositionX = (uint32_t)((foregroundTiles[i].position.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((foregroundTiles[i].position.y - cameraPosition.y) * zoom);
 
-		SDL_Rect dest;
+		Rectangle dest;
 		int windowWidth;
 		int windowHeight;
 		
@@ -89,28 +103,35 @@ void Engine::renderForeground(Game& game) {
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		renderer.copyToRenderer(texture, &foregroundTiles[i].spriteSheetLocation, &dest);
+		renderer.copyToRenderer(
+			texture, 
+			&foregroundTiles[i].subTexture, 
+			&dest,
+			foregroundTiles[i].rotation,
+			foregroundTiles[i].rotationAxis.has_value() ? &foregroundTiles[i].rotationAxis.value() : nullptr,
+			foregroundTiles[i].reflection
+		);
 	}
 }
 
 void Engine::sortWorldEntitiesVector() {
-	std::sort(worldEntitiesVector.begin(), worldEntitiesVector.end(), [](const WorldEntity& a, const WorldEntity& b) {
-		return a.worldPosition.y < b.worldPosition.y;
+	std::sort(worldEntitiesVector.begin(), worldEntitiesVector.end(), [](const RenderableTexture& a, const RenderableTexture& b) {
+		return a.position.y < b.position.y;
 	});
 }
 
 void Engine::render(Game& game) {
-	game.getCurrentMap(map);
+	TiledMap& map = game.getCurrentMap();
 
 	auto drawColor = map.getBackgroundColor();
 
 	renderer.setRenderDrawColor(drawColor.r, drawColor.g, drawColor.b, drawColor.a);
 
-	renderBackground(game);
+	renderBackground(game, map);
 
 	game.getWorldEntities(worldEntitiesVector);
 
-	std::vector<WorldEntity> mapEntities = map.getEntities();
+	std::vector<RenderableTexture> mapEntities = map.getEntities();
 
 	worldEntitiesVector.insert(worldEntitiesVector.end(), mapEntities.begin(), mapEntities.end());
 
@@ -118,7 +139,7 @@ void Engine::render(Game& game) {
 	
 	renderWorldEntities(game);
 
-	renderForeground(game);
+	renderForeground(game, map);
 
 	renderer.render();
 }
@@ -166,7 +187,7 @@ void Engine::handleOneTimeEvents(Game& game) {
 
 void Engine::updateGameState(float timestep, Game& game) {
 	const unsigned char* keys = SDL_GetKeyboardState(NULL);
-	game.updateMovement(keys, timestep);
+	game.update(keys, timestep);
 }
 
 void Engine::run(Game& game) {

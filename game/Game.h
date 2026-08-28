@@ -23,9 +23,9 @@ public:
     Game() = default;
     virtual ~Game() = default;
     virtual void init(EngineAPI& engineAPI) = 0;
-    virtual void updateMovement(const unsigned char* keys, float timestep) = 0;
-    virtual void getWorldEntities(std::vector<WorldEntity>& worldEntitiesVector) = 0;
-    virtual void getCurrentMap(TiledMap& map) = 0;
+    virtual void update(const unsigned char* keys, float timestep) = 0;
+    virtual void getWorldEntities(std::vector<RenderableTexture>& worldEntitiesVector) = 0;
+    virtual TiledMap& getCurrentMap() = 0;
     virtual Camera& getCamera() = 0; // TODO: This forces developers to only have one Camera. Make it so they can have as many as they want.
     virtual AssetRegistry& getAssetRegistry() = 0;
 

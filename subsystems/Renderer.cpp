@@ -21,8 +21,50 @@ Renderer::Renderer(
     }
 }
 
-void Renderer::copyToRenderer(SDL_Texture* texture, SDL_Rect* srcrect, SDL_Rect* dstrect) {
-    SDL_RenderCopy(renderer.get(), texture, srcrect, dstrect);
+void Renderer::copyToRenderer(
+	SDL_Texture* texture,
+	Rectangle* subTexture,
+	Rectangle* rendererPortion,
+	double rotation,
+	Point* rotationAxis,
+	Reflection reflection) {
+    SDL_Rect SDLSubTexture;
+    SDL_Rect SDLRendererPortion;
+    SDL_Point SDLRotationAxis;
+
+    if (subTexture != nullptr) {
+        SDLSubTexture = {
+            subTexture->x,
+            subTexture->y,
+            subTexture->w,
+            subTexture->h
+        };
+    }
+
+    if (rendererPortion != nullptr) {
+        SDLRendererPortion = {
+            rendererPortion->x,
+            rendererPortion->y,
+            rendererPortion->w,
+            rendererPortion->h
+        };
+    }
+
+    if (rotationAxis != nullptr) {
+        SDLRotationAxis = {
+            rotationAxis->x,
+            rotationAxis->y
+        };
+    }
+
+	SDL_RenderCopyEx(
+		renderer.get(), 
+		texture, 
+		subTexture != nullptr ? &SDLSubTexture : nullptr, 
+		rendererPortion != nullptr ? &SDLRendererPortion : nullptr, 
+		rotation, 
+		rotationAxis != nullptr ? &SDLRotationAxis : nullptr, 
+		(reflection != Reflection::NONE ? (reflection == Reflection::VERTICAL ? SDL_FLIP_VERTICAL : SDL_FLIP_HORIZONTAL) : SDL_FLIP_NONE));
 }
 
 void Renderer::clear() {

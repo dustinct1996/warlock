@@ -1,16 +1,32 @@
 #include "AssetManager.h"
+#include <filesystem>
 
 SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::string& path) {
-    if (textures.count(id) > 0) {   
+    if(textures.count(id) > 0) {   
         textures[id].refCnt++;
 		return nullptr;
     }
 	
 	SDL_Surface* surface;
 
-	surface = SDL_LoadBMP(path.c_str());
+	std::string extension;
 
-	if (!surface) {
+	// check file type
+	for(int i = 0; i < path.size(); i++) {
+		if(path[i] == '.') {
+			extension.clear();
+		}
+
+		extension += path[i];
+	}
+	
+	if(extension == ".bmp") {
+		surface = SDL_LoadBMP(path.c_str());
+	} else if(extension == ".png") {
+		// add .png support
+	}
+
+	if(!surface) {
 		LOG(ERROR) << "Error loading " << id << "'s image: " << SDL_GetError();
 		exit(1);
 	}
@@ -19,7 +35,7 @@ SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::stri
 }
 
 void AssetManager::decrementOrDeleteTexture(uint32_t id) {
-    if (textures.count(id) > 0 && textures[id].refCnt > 1) {   
+    if(textures.count(id) > 0 && textures[id].refCnt > 1) {   
         textures[id].refCnt--;
     } else {
 		deleteTexture(id);

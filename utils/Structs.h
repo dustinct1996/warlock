@@ -1,8 +1,9 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#include <optional>
 #include <SDL.h>
-#include <string>
+#include "Enums.h"
 
 struct Size {
     uint32_t h;
@@ -14,10 +15,17 @@ struct Point {
     float y;
 };
 
-struct CollisionBox {
-    SDL_Rect box;
+struct Rectangle {
+    int32_t x;
+    int32_t y;
+    int32_t h;
+    int32_t w;
+};
 
-    bool intersects(const SDL_Rect& otherBox) {
+struct CollisionBox {
+    Rectangle box;
+
+    bool intersects(const Rectangle& otherBox) {
         if(box.x < (otherBox.x + otherBox.w) &&
           (box.x + box.w) > otherBox.x &&
            box.y < (otherBox.y + otherBox.h) &&
@@ -29,11 +37,14 @@ struct CollisionBox {
     }
 };
 
-struct WorldEntity {
-    SDL_Rect spriteSheetLocation;
-    Size size;
-    Point worldPosition;
+struct RenderableTexture {
     uint32_t texture;
+    Rectangle subTexture;
+    Size size;
+    Point position;
+    double rotation = 0.0;
+	std::optional<Point> rotationAxis;
+    Reflection reflection = Reflection::NONE;
 };
 
 #endif // STRUCTS_H

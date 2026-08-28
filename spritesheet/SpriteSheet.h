@@ -6,7 +6,7 @@
 class SpriteSheet {
 public:
     SpriteSheet(uint32_t spriteSheetID, uint16_t spriteSizeX, uint16_t spriteSizeY, uint8_t spriteOffset, uint8_t sheetMargin, std::string pathToTexture);
-    SDL_Rect getSprite(uint8_t x, uint8_t y) const;
+    Rectangle getSprite(uint8_t x, uint8_t y) const;
     uint32_t getTextureID() const { return id; };
     std::string getPath() { return filePath; };
     Size getSpriteSize() { return size; };

@@ -7,8 +7,8 @@ SpriteSheet::SpriteSheet(uint32_t spriteSheetID, uint16_t spriteSizeX, uint16_t 
     margin(sheetMargin),
     filePath(pathToTexture) {}
 
-SDL_Rect SpriteSheet::getSprite(uint8_t x, uint8_t y) const {
-    SDL_Rect sprite;
+Rectangle SpriteSheet::getSprite(uint8_t x, uint8_t y) const {
+    Rectangle sprite;
 
     sprite.h = size.h;
     sprite.w = size.w;

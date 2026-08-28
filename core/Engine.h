@@ -23,8 +23,8 @@ public:
 
 private:
     void render(Game& game);
-    void renderBackground(Game& game);
-    void renderForeground(Game& game);
+    void renderBackground(Game& game, TiledMap& map);
+    void renderForeground(Game& game, TiledMap& map);
     void handleOneTimeEvents(Game& game);
     void updateGameState(float timestep, Game& game);
     void sortWorldEntitiesVector();
@@ -37,8 +37,7 @@ private:
     AssetManager assets;
     EngineAPI engineAPI;
     AssetRegistry* assetRegistry = nullptr;
-    TiledMap map;
-    std::vector<WorldEntity> worldEntitiesVector;
+    std::vector<RenderableTexture> worldEntitiesVector;
     bool developerMode = false;
     bool running = true;
 };
