@@ -8,7 +8,6 @@ SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::stri
     }
 	
 	SDL_Surface* surface;
-
 	std::string extension;
 
 	// check file type
@@ -24,6 +23,9 @@ SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::stri
 		surface = SDL_LoadBMP(path.c_str());
 	} else if(extension == ".png") {
 		// add .png support
+	} else {
+		LOG(ERROR) << "Unknown texture format";
+		return nullptr;
 	}
 
 	if(!surface) {

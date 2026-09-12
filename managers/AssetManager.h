@@ -30,6 +30,7 @@ public:
     SDL_Texture* getTexture(uint32_t id) const;
 private:
     void deleteTexture(uint32_t id);
+    std::unordered_map<std::string, uint32_t> texturesFilePaths;
     std::unordered_map<uint32_t, Texture> textures;
 };
 

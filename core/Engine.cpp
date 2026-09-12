@@ -185,7 +185,7 @@ void Engine::handleOneTimeEvents(Game& game) {
 	}
 }
 
-void Engine::updateGameState(float timestep, Game& game) {
+void Engine::updateState(float timestep, Game& game) {
 	const unsigned char* keys = SDL_GetKeyboardState(NULL);
 	game.update(keys, timestep);
 }
@@ -206,7 +206,7 @@ void Engine::run(Game& game) {
 		
 		handleOneTimeEvents(game);
 
-		updateGameState(timestep, game);
+		updateState(timestep, game);
 
 		render(game);
 	}

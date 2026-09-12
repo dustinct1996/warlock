@@ -26,7 +26,7 @@ private:
     void renderBackground(Game& game, TiledMap& map);
     void renderForeground(Game& game, TiledMap& map);
     void handleOneTimeEvents(Game& game);
-    void updateGameState(float timestep, Game& game);
+    void updateState(float timestep, Game& game);
     void sortWorldEntitiesVector();
     void renderWorldEntities(Game& game);
     // void updateLevelInternal(LevelID level);
