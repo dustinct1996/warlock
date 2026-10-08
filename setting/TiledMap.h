@@ -4,7 +4,7 @@
 #include "tileson.hpp"
 #include "Utils.h"
 #include "SpriteSheet.h"
-#include "AnimatedSprite.h"
+#include "cube.h"
 #include "AnimationState.h"
 #include "LayerStack.h"
 
@@ -18,9 +18,10 @@ struct AnimatedTile {
     AnimationState state;
     RenderableTexture* renderableTexture = nullptr;
 
-    AnimatedTile(std::vector<InputFrame> newFrames, float frameIncrementationTrigger = 0.1) : 
-        sprite(newFrames), state(frameIncrementationTrigger) {};
+    AnimatedTile(std::vector<InputFrame> newFrames, uint32_t texture, float frameIncrementationTrigger = 0.1) : 
+        sprite(newFrames, texture), state(frameIncrementationTrigger) {};
 };
+
 
 class TiledMap {
 public:
@@ -31,7 +32,7 @@ public:
     tson::Colori getBackgroundColor();
     void update(float timestep);
 private:
-    tson::Colori backgroundColor;
+    tson::Colori backgroundColor = {255, 255, 255, 255};
     std::vector<Rectangle> collisionObjects;
     Point bounds[4] = {
         {231, 231},

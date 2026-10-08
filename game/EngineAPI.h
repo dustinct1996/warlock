@@ -9,7 +9,7 @@ class Renderer;
 class EngineAPI {
 public:
     EngineAPI(Renderer& sdlRenderer, AssetManager& assets);
-    void requestTexture(uint32_t id, const std::string& path);
+    void requestTexture(uint32_t id, const char* path);
     void releaseTexture(uint32_t id);
 private:
     Renderer* renderer;

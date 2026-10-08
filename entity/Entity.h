@@ -4,24 +4,26 @@
 #include <SDL.h>
 #include "Utils.h"
 
+// class Renderer
+
 class Entity {
 public:
     // Virtual classes need to have constructors and destructors explicitly defined.
-    Entity(uint32_t entityId, float x, float y, uint32_t h, uint32_t w) : id(entityId), position{x, y}, dimensions{h, w} {};
+    Entity(uint32_t entityId, float x, float y) : id(entityId), position{x, y} {};
     virtual ~Entity() = default;
+    // virtual void render();
     virtual void move(const unsigned char* keys, float timestep) = 0;
-    virtual RenderableTexture getRenderableTexture() = 0;
-    virtual Point getPosition() = 0;
-    virtual CollisionBox getCollisionBox() = 0;
     virtual uint32_t getID() = 0;
-    virtual bool isSolid() = 0;
 protected:
-    uint32_t texture;
-    Point position;
-    Point direction;
-    Size dimensions;
-    CollisionBox collisionBox;
     uint32_t id;
+    uint32_t depth;
+    Point position;
 };
 
 #endif // ENTITY_H
+
+/*
+WorldEntity (Player, enemies, etc.)
+Items (chests, sword, etc.)
+TileLayer
+*/

@@ -1,4 +1,5 @@
 #include "TiledMap.h"
+#include <cstring>
 #include "Logging.h"
 
 TiledMap::TiledMap(std::vector<SpriteSheet*> spriteSheets, const std::string& mapPath) {
@@ -23,7 +24,12 @@ TiledMap::TiledMap(std::vector<SpriteSheet*> spriteSheets, const std::string& ma
             tson::Rect subTexture = tileObject.getDrawingRect();
             
             for(int i = 0; i < spriteSheets.size(); i++) {
-                if(spriteSheets[i]->getPath().substr(6) == spriteSheet->getImage().u8string().substr(2)) {
+                if(
+                    std::strcmp(
+                        spriteSheets[i]->getPath() + 6, 
+                        spriteSheet->getImage().u8string().c_str() + 2
+                    ) == 0
+                ) {
                     tile.texture = spriteSheets[i]->getTextureID();
 
                     uint8_t offset = spriteSheets[i]->getOffset();
@@ -33,6 +39,8 @@ TiledMap::TiledMap(std::vector<SpriteSheet*> spriteSheets, const std::string& ma
                     tile.subTexture.y = subTexture.y;
                     tile.subTexture.w = subTexture.width;
                     tile.subTexture.h = subTexture.height;
+
+                    break;
                 }
             }
 
@@ -87,7 +95,7 @@ TiledMap::TiledMap(std::vector<SpriteSheet*> spriteSheets, const std::string& ma
                         frames.emplace_back(inputFrame);
                     }
 
-                    AnimatedTile animatedTile(frames);
+                    AnimatedTile animatedTile(frames, tile.texture);
 
                     if(layerType == "background") {
                         animatedTile.renderableTexture = &backgroundTiles.back();

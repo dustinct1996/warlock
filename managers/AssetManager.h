@@ -24,7 +24,7 @@ struct Texture {
 
 class AssetManager {
 public:
-    SDL_Surface* incrementOrCreateSurface(uint32_t id, const std::string& path);
+    SDL_Surface* incrementOrCreateSurface(uint32_t id, const char* path);
     void addTexture(uint32_t id, SDL_Texture* texture);
     void decrementOrDeleteTexture(uint32_t id);
     SDL_Texture* getTexture(uint32_t id) const;

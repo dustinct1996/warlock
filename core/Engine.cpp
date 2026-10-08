@@ -3,23 +3,24 @@
 #include "Engine.h"
 #include "Utils.h"
 
-Engine::Engine(AssetRegistry& assetReg):
+Engine::Engine(/*AssetRegistry& assetReg*/):
 	sdl(),
 	window(1280, 720),
 	renderer(window.getWindow()),
 	assets(),
-	engineAPI(renderer, assets),
-	assetRegistry(&assetReg) {}
+	engineAPI(renderer, assets)/*,
+	assetRegistry(&assetReg)*/ {}
 
-void Engine::renderWorldEntities(Game& game) {
-	for(uint32_t i = 0; i < worldEntitiesVector.size(); i++) {
-		SDL_Texture* texture = assets.getTexture(worldEntitiesVector[i].texture);
+void Engine::renderRenderableEntities(Game& game) {
+	for(uint32_t i = 0; i < renderableEntitiesVector.size(); i++) {
+		SDL_Texture* texture = assets.getTexture(renderableEntitiesVector[i].texture);
 
 		float zoom = game.getCamera().getZoom();
 		Point cameraPosition = game.getCamera().getPosition();
-
-		uint32_t screenPositionX = (uint32_t)((worldEntitiesVector[i].position.x - cameraPosition.x) * zoom);
-		uint32_t screenPositionY = (uint32_t)((worldEntitiesVector[i].position.y - cameraPosition.y) * zoom);
+		
+		renderer.setRenderDrawColor(0, 0, 0, 255);
+		uint32_t screenPositionX = (uint32_t)((renderableEntitiesVector[i].position.x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((renderableEntitiesVector[i].position.y - cameraPosition.y) * zoom);
 
 		Rectangle dest;
 		int windowWidth;
@@ -27,23 +28,50 @@ void Engine::renderWorldEntities(Game& game) {
 		
 		window.getWindowSize(&windowWidth, &windowHeight);
 
-		dest.w = worldEntitiesVector[i].size.w * zoom;
-		dest.h = worldEntitiesVector[i].size.h * zoom;
+		dest.w = renderableEntitiesVector[i].size.w * zoom;
+		dest.h = renderableEntitiesVector[i].size.h * zoom;
 
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		renderer.copyToRenderer(
+		renderer.copyTextureToRenderer(
 			texture, 
-			&worldEntitiesVector[i].subTexture, 
+			&renderableEntitiesVector[i].subTexture, 
 			&dest,
-			worldEntitiesVector[i].rotation,
-			worldEntitiesVector[i].rotationAxis.has_value() ? &worldEntitiesVector[i].rotationAxis.value() : nullptr,
-			worldEntitiesVector[i].reflection
+			renderableEntitiesVector[i].rotation,
+			renderableEntitiesVector[i].rotationAxis.has_value() ? &renderableEntitiesVector[i].rotationAxis.value() : nullptr,
+			renderableEntitiesVector[i].reflection
 		);
 	}
 		
-	worldEntitiesVector.clear();
+	renderableEntitiesVector.clear();
+
+
+
+
+
+
+
+	for(uint32_t i = 0; i < actors.size(); i++) {
+		Point position;
+		int windowWidth;
+		int windowHeight;
+
+		Graphic& graphic = actors[i]->getGraphic();
+		float zoom = game.getCamera().getZoom();
+		Point cameraPosition = game.getCamera().getPosition();
+		window.getWindowSize(&windowWidth, &windowHeight);
+
+		uint32_t screenPositionX = (uint32_t)((actors[i]->getPosition().x - cameraPosition.x) * zoom);
+		uint32_t screenPositionY = (uint32_t)((actors[i]->getPosition().y - cameraPosition.y) * zoom);
+
+		position.x = screenPositionX + (windowWidth / 2);
+		position.y = screenPositionY + (windowHeight / 2);
+
+		graphic.render(renderer, position, zoom, &assets);
+	}
+
+	actors.clear();
 }
 
 void Engine::renderBackground(Game& game, TiledMap& map) {
@@ -69,7 +97,7 @@ void Engine::renderBackground(Game& game, TiledMap& map) {
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		renderer.copyToRenderer(
+		renderer.copyTextureToRenderer(
 			texture, 
 			&backgroundTiles[i].subTexture, 
 			&dest,
@@ -103,7 +131,7 @@ void Engine::renderForeground(Game& game, TiledMap& map) {
 		dest.x = (screenPositionX - (dest.w / 2)) + (windowWidth / 2);
 		dest.y = (screenPositionY - dest.h) + (windowHeight / 2);
 
-		renderer.copyToRenderer(
+		renderer.copyTextureToRenderer(
 			texture, 
 			&foregroundTiles[i].subTexture, 
 			&dest,
@@ -114,8 +142,8 @@ void Engine::renderForeground(Game& game, TiledMap& map) {
 	}
 }
 
-void Engine::sortWorldEntitiesVector() {
-	std::sort(worldEntitiesVector.begin(), worldEntitiesVector.end(), [](const RenderableTexture& a, const RenderableTexture& b) {
+void Engine::sortRenderableEntitiesVector() {
+	std::sort(renderableEntitiesVector.begin(), renderableEntitiesVector.end(), [](const RenderableTexture& a, const RenderableTexture& b) {
 		return a.position.y < b.position.y;
 	});
 }
@@ -123,23 +151,23 @@ void Engine::sortWorldEntitiesVector() {
 void Engine::render(Game& game) {
 	TiledMap& map = game.getCurrentMap();
 
-	auto drawColor = map.getBackgroundColor();
-
-	renderer.setRenderDrawColor(drawColor.r, drawColor.g, drawColor.b, drawColor.a);
-
 	renderBackground(game, map);
 
-	game.getWorldEntities(worldEntitiesVector);
+	game.getRenderableActors(actors);
 
 	std::vector<RenderableTexture> mapEntities = map.getEntities();
 
-	worldEntitiesVector.insert(worldEntitiesVector.end(), mapEntities.begin(), mapEntities.end());
+	renderableEntitiesVector.insert(renderableEntitiesVector.end(), mapEntities.begin(), mapEntities.end());
 
-	sortWorldEntitiesVector();
+	sortRenderableEntitiesVector();
 	
-	renderWorldEntities(game);
+	renderRenderableEntities(game);
 
 	renderForeground(game, map);
+
+	auto drawColor = map.getBackgroundColor();
+
+	renderer.setRenderDrawColor(drawColor.r, drawColor.g, drawColor.b, drawColor.a);
 
 	renderer.render();
 }
@@ -148,7 +176,7 @@ void Engine::render(Game& game) {
 
 // }
 
-void Engine::handleOneTimeEvents(Game& game) {
+void Engine::pollEvent(Game& game) {
 	SDL_Event e;
 	
 	while(SDL_PollEvent(&e) != 0) {
@@ -204,7 +232,7 @@ void Engine::run(Game& game) {
 
 		renderer.clear();
 		
-		handleOneTimeEvents(game);
+		pollEvent(game);
 
 		updateState(timestep, game);
 

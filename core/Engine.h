@@ -17,7 +17,7 @@ struct SDLDeleter {
 
 class Engine {
 public:
-    Engine(AssetRegistry& assetRegistry);
+    Engine(/*AssetRegistry& assetRegistry*/);
     void run(Game& game);
     void loadAssets(const std::string& path);
 
@@ -25,10 +25,10 @@ private:
     void render(Game& game);
     void renderBackground(Game& game, TiledMap& map);
     void renderForeground(Game& game, TiledMap& map);
-    void handleOneTimeEvents(Game& game);
+    void pollEvent(Game& game);
     void updateState(float timestep, Game& game);
-    void sortWorldEntitiesVector();
-    void renderWorldEntities(Game& game);
+    void sortRenderableEntitiesVector();
+    void renderRenderableEntities(Game& game);
     // void updateLevelInternal(LevelID level);
 
     std::unique_ptr<SDLContext, SDLDeleter> sdl;
@@ -36,8 +36,9 @@ private:
     Renderer renderer;
     AssetManager assets;
     EngineAPI engineAPI;
-    AssetRegistry* assetRegistry = nullptr;
-    std::vector<RenderableTexture> worldEntitiesVector;
+    // AssetRegistry* assetRegistry = nullptr;
+    std::vector<RenderableTexture> renderableEntitiesVector;
+    std::vector<Actor*> actors;
     bool developerMode = false;
     bool running = true;
 };

@@ -18,18 +18,13 @@ struct AnimationFrame {
 
 class AnimatedSprite {
 public:
-    AnimatedSprite(std::vector<InputFrame> newFrames);
+    AnimatedSprite(std::vector<InputFrame> newFrames, uint32_t texture);
     Rectangle getSprite(AnimationState& state);
-    void print() {
-        for(int i = 0; i < frames.size(); i++) {
-            std::cout << "STARTING LOG..." << std::endl;
-            std::cout << frames[i].sprite.x << " " << frames[i].sprite.y << std::endl;
-            std::cout << frames[i].triggerFrame << std::endl;
-        }
-    };
+    uint32_t getTexture();
 private:
     std::vector<AnimationFrame> frames;
     uint8_t totalFrames = 0;
+    uint32_t texture;
 };
 
 #endif // ANIMATION_H

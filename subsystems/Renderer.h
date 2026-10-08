@@ -1,3 +1,6 @@
+#ifndef RENDERER_H
+#define RENDERER_H
+
 #include <SDL.h>
 #include <memory>
 #include "Utils.h"
@@ -20,14 +23,15 @@ public:
         uint8_t b = 255,
         uint8_t a = 255
     );
-    void copyToRenderer(
+    void copyTextureToRenderer(
         SDL_Texture* texture,
         Rectangle* subTexture,
         Rectangle* rendererPortion,
         double rotation,
         Point* rotationAxis,
         Reflection reflection);
-
+    void copyRectangleToRenderer(
+	    Rectangle* rect);
     void clear();
     void render();
     void setRenderDrawColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
@@ -35,3 +39,5 @@ public:
 private:
     std::unique_ptr<SDL_Renderer, SDLRendererDeleter> renderer;
 };
+
+#endif // RENDERER_H

@@ -15,6 +15,12 @@ struct Layer {
     int id;
     int index;
     std::vector<T> objects;
+
+    void ySort() {
+        std::sort(objects.begin(), objects.end(), [](const RenderableTexture& a, const RenderableTexture& b) {
+            return a.position.y < b.position.y;
+        });
+    }
 };
 
 template <typename T> class LayerStack {

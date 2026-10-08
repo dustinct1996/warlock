@@ -21,7 +21,7 @@ Renderer::Renderer(
     }
 }
 
-void Renderer::copyToRenderer(
+void Renderer::copyTextureToRenderer(
 	SDL_Texture* texture,
 	Rectangle* subTexture,
 	Rectangle* rendererPortion,
@@ -65,6 +65,23 @@ void Renderer::copyToRenderer(
 		rotation, 
 		rotationAxis != nullptr ? &SDLRotationAxis : nullptr, 
 		(reflection != Reflection::NONE ? (reflection == Reflection::VERTICAL ? SDL_FLIP_VERTICAL : SDL_FLIP_HORIZONTAL) : SDL_FLIP_NONE));
+}
+
+void Renderer::copyRectangleToRenderer(
+	Rectangle* rect) {
+    SDL_Rect sdlRect;
+
+	sdlRect = {
+		rect->x,
+		rect->y,
+		rect->w,
+		rect->h
+	};
+
+	SDL_RenderDrawRect(
+		renderer.get(),
+		&sdlRect
+	);
 }
 
 void Renderer::clear() {

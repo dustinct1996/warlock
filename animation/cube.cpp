@@ -1,8 +1,8 @@
-#include "AnimatedSprite.h"
+#include "cube.h"
 #include "Logging.h"
 #include <algorithm>
 
-AnimatedSprite::AnimatedSprite(std::vector<InputFrame> newFrames) {
+AnimatedSprite::AnimatedSprite(std::vector<InputFrame> newFrames, uint32_t textureID) {
     frames.reserve(4);
 
     for(uint32_t i = 0; i < newFrames.size(); i++) {
@@ -14,6 +14,8 @@ AnimatedSprite::AnimatedSprite(std::vector<InputFrame> newFrames) {
 
         frames.emplace_back(newFrame);
     }
+
+    texture = textureID;
 }
 
 Rectangle AnimatedSprite::getSprite(AnimationState& state) {
@@ -26,4 +28,8 @@ Rectangle AnimatedSprite::getSprite(AnimationState& state) {
     }
 
     return sprite;
+}
+
+uint32_t AnimatedSprite::getTexture() {
+    return texture;
 }

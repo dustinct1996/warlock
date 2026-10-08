@@ -1,7 +1,7 @@
 #include "AssetManager.h"
 #include <filesystem>
 
-SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::string& path) {
+SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const char* path) {
     if(textures.count(id) > 0) {   
         textures[id].refCnt++;
 		return nullptr;
@@ -11,7 +11,7 @@ SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::stri
 	std::string extension;
 
 	// check file type
-	for(int i = 0; i < path.size(); i++) {
+	for(int i = 0; i < strlen(path); i++) {
 		if(path[i] == '.') {
 			extension.clear();
 		}
@@ -20,7 +20,7 @@ SDL_Surface* AssetManager::incrementOrCreateSurface(uint32_t id, const std::stri
 	}
 	
 	if(extension == ".bmp") {
-		surface = SDL_LoadBMP(path.c_str());
+		surface = SDL_LoadBMP(path);
 	} else if(extension == ".png") {
 		// add .png support
 	} else {

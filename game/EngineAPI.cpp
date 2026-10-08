@@ -5,7 +5,7 @@
 
 EngineAPI::EngineAPI(Renderer& sdlRenderer, AssetManager& assets) : renderer(&sdlRenderer), assetManager(&assets) {}
 
-void EngineAPI::requestTexture(uint32_t id, const std::string& path) {
+void EngineAPI::requestTexture(uint32_t id, const char* path) {
     SDL_Surface* surface = assetManager->incrementOrCreateSurface(id, path);
     SDL_Texture* texture = renderer->createTexture(surface);
     assetManager->addTexture(id, texture);

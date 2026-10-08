@@ -32,3 +32,5 @@ class Camera {
 };
 
 #endif // CAMERA_H
+
+// add viewport
